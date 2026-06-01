@@ -10,7 +10,8 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'amc-vault-secret-key-2024'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'amc-vault-secret-key-2024')
+app.config['DEBUG'] = os.getenv('FLASK_DEBUG', False)
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'db', 'amc_problems.db')
 
 # ── Login Manager Setup ────────────────────────────────────────────
@@ -241,4 +242,4 @@ def get_problem(year, version, question_num):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=int(os.getenv('PORT', 5000)))
