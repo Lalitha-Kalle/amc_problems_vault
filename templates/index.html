@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMC 10 Problem Vault</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <img src="/static/logo.png" alt="AMC Logo" class="logo-img">
+                <div>
+                    <div class="logo-title">
+                        <span class="logo-brand">AMC 10</span>
+                        <span class="logo-divider">|</span>
+                        <span class="logo-descriptor">Problem Vault</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span class="header-badge">Problem Bank</span>
+                <div class="user-menu">
+                    <span class="user-label">👤 {{ current_user.username }}</span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Filter Panel -->
+        <section class="card filter-panel">
+            <div class="card-header">
+                <h2 class="card-title">Filter by Difficulty & Topic</h2>
+                <button class="btn btn-ghost" id="resetBtn">Reset</button>
+            </div>
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label>Difficulty Level</label>
+                    <select id="difficultySelect">
+                        <option value="">All Levels</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Specific Topic</label>
+                    <div class="subtopic-search-wrap" id="subtopicDropdown">
+                        <input type="text" id="subtopicSearch"
+                               placeholder="Search specific topics…"
+                               autocomplete="off">
+                        <button class="search-clear" id="searchClear" hidden aria-label="Clear">&#x2715;</button>
+                        <ul class="subtopic-list" id="subtopicList" hidden></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-footer">
+                <button class="btn btn-primary" id="applyBtn">Apply Filter</button>
+                <p class="filter-note" id="filterNote"></p>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section class="card results-panel">
+            <div class="card-header">
+                <h2 class="card-title">Problems</h2>
+                <span class="result-badge" id="resultsCount">Loading…</span>
+            </div>
+            <div class="table-wrapper">
+                <table class="problems-table" id="problemsTable">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Ver.</th>
+                            <th>Q #</th>
+                            <th>Module</th>
+                            <th>Sub-topic</th>
+                            <th>Specific Topic</th>
+                            <th>Content</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="problemsBody">
+                        <tr>
+                            <td colspan="8" class="state-cell">
+                                <div class="state-inner">
+                                    <div class="spinner"></div>
+                                    Loading problems…
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/index.js"></script>
+</body>
+</html>

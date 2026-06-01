@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMC 10 Problem Vault</title>
+    <link rel="stylesheet" href="/static/css/problem.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body data-year="{{ year }}" data-version="{{ version }}" data-qnum="{{ question_num }}">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+        <img src="/static/logo.png" alt="AMC Logo" class="topbar-logo">
+        <div class="topbar-brand">
+            <span class="topbar-brand-amc">AMC 10</span>
+            <span class="topbar-brand-sep">|</span>
+            <span class="topbar-brand-name">Problem Vault</span>
+        </div>
+        <button class="close-btn" onclick="window.close()">&#x2715; Close</button>
+        <div class="topbar-center">
+            <span class="problem-title" id="problemTitle">Loading…</span>
+            <div class="topic-chips" id="topicChips"></div>
+        </div>
+    </div>
+
+    <!-- Main Split Layout -->
+    <div class="split-layout">
+
+        <!-- LEFT PANEL -->
+        <div class="left-panel" id="leftPanel">
+
+            <!-- Tab Bar -->
+            <div class="tab-bar">
+                <button class="tab active" id="tabProblem" data-panel="panelProblem">Problem</button>
+                <button class="tab" id="tabSolution" data-panel="panelSolution">Solution</button>
+                <div class="tab-spacer"></div>
+                <div class="font-controls">
+                    <button class="font-btn" id="fontSmaller" title="Decrease font size">A<sup>-</sup></button>
+                    <button class="font-btn font-btn-reset" id="fontReset" title="Reset font size">A</button>
+                    <button class="font-btn" id="fontLarger" title="Increase font size">A<sup>+</sup></button>
+                </div>
+            </div>
+
+            <!-- Problem Panel -->
+            <div class="tab-panel active" id="panelProblem">
+                <div class="panel-content" id="questionContent">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        Loading problem…
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solution Panel -->
+            <div class="tab-panel" id="panelSolution">
+                <!-- Reveal state -->
+                <div class="reveal-state" id="revealState">
+                    <div class="reveal-icon">&#x1F512;</div>
+                    <button class="reveal-btn" id="revealBtn">Reveal Solution</button>
+                    <p class="reveal-hint">Click to show the full solution</p>
+                </div>
+                <!-- Solution content (hidden until revealed) -->
+                <div class="panel-content answer-content" id="answerContent" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- RESIZER -->
+        <div class="panel-resizer" id="panelResizer"></div>
+
+        <!-- RIGHT PANEL: Canvas -->
+        <div class="right-panel" id="rightPanel">
+
+            <!-- Canvas Toolbar -->
+            <div class="canvas-toolbar">
+
+                <div class="tool-group">
+                    <span class="tool-label">Color</span>
+                    <div class="swatches">
+                        <button class="swatch active" data-color="#1a1a1a" style="background:#1a1a1a" title="Black"></button>
+                        <button class="swatch" data-color="#EF4444" style="background:#EF4444" title="Red"></button>
+                        <button class="swatch" data-color="#3B82F6" style="background:#3B82F6" title="Blue"></button>
+                        <button class="swatch" data-color="#10B981" style="background:#10B981" title="Green"></button>
+                        <button class="swatch" data-color="#F59E0B" style="background:#F59E0B" title="Amber"></button>
+                        <button class="swatch" data-color="#8B5CF6" style="background:#8B5CF6" title="Purple"></button>
+                        <input type="color" id="customColor" value="#1a1a1a" title="Custom color">
+                    </div>
+                </div>
+
+                <div class="tool-group">
+                    <span class="tool-label">Size</span>
+                    <div class="size-row">
+                        <input type="range" id="penSize" min="1" max="40" value="3">
+                        <span id="penSizeLabel">3 px</span>
+                    </div>
+                </div>
+
+                <div class="tool-group tool-buttons">
+                    <button class="tbar-btn active" id="penBtn" title="Pen">&#x270F; Pen</button>
+                    <button class="tbar-btn" id="eraserBtn" title="Eraser">&#x25A1; Eraser</button>
+                </div>
+
+                <div class="tool-group tool-actions">
+                    <button class="tbar-btn btn-danger" id="clearBtn">&#x1F5D1; Clear</button>
+                    <button class="tbar-btn btn-save" id="savePdfBtn">&#x1F4BE; Save PDF</button>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="canvas-wrap" id="canvasWrap">
+                <canvas id="drawCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/problem.js"></script>
+</body>
+</html>
