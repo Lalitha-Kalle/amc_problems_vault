@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 import sqlite3
 import os
+import re
 
 
 load_dotenv()
@@ -54,6 +55,18 @@ def get_difficulty_level(question_num):
     return None
 
 
+# ── Studio UI helpers ──────────────────────────────────────────────
+EXAM_RE = re.compile(r'^(\d{4}) AMC 10([AB])$')
+LEVEL_RANGES = {'L1': (1, 10), 'L2': (11, 20), 'L3': (21, 25)}
+
+
+def parse_exam(exam):
+    m = EXAM_RE.match(exam or '')
+    if not m:
+        return None, None
+    return int(m.group(1)), m.group(2)
+
+
 # ── Auth Routes ────────────────────────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -72,10 +85,12 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
     logout_user()
+    if request.method == 'POST':
+        return jsonify({'ok': True})
     return redirect(url_for('login'))
 
 
@@ -83,7 +98,7 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    return render_template('updated_ui.html')
 
 
 @app.route('/problem/<int:year>/<version>/<int:question_num>')
@@ -239,6 +254,161 @@ def get_problem(year, version, question_num):
         'problem': content['problem'] if content else None,
         'solution': content['solution'] if content else None,
     })
+
+
+# ── Studio UI API (updated_ui.html) ───────────────────────────────
+@app.route('/api/exams')
+@login_required
+def api_exams():
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            'SELECT DISTINCT year, version FROM problem_content ORDER BY year DESC, version'
+        ).fetchall()
+    finally:
+        conn.close()
+    return jsonify([f"{r['year']} AMC 10{r['version']}" for r in rows])
+
+
+@app.route('/api/levels')
+@login_required
+def api_levels():
+    year, version = parse_exam(request.args.get('exam', ''))
+    if not year:
+        return jsonify([])
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            'SELECT DISTINCT question_num FROM problem_content WHERE year = ? AND version = ?',
+            (year, version)).fetchall()
+    finally:
+        conn.close()
+    nums = {r['question_num'] for r in rows}
+    return jsonify([lvl for lvl, (lo, hi) in LEVEL_RANGES.items()
+                     if any(lo <= n <= hi for n in nums)])
+
+
+@app.route('/api/chapters')
+@login_required
+def api_chapters():
+    year, version = parse_exam(request.args.get('exam', ''))
+    if not year:
+        return jsonify([])
+    lo_hi = LEVEL_RANGES.get(request.args.get('difficulty', ''))
+
+    conditions, params = ['year = ?', 'version = ?'], [year, version]
+    if lo_hi:
+        conditions.append('question_num BETWEEN ? AND ?')
+        params += list(lo_hi)
+
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            f"SELECT DISTINCT level_1 FROM problems WHERE {' AND '.join(conditions)} ORDER BY level_1",
+            params).fetchall()
+    finally:
+        conn.close()
+    return jsonify([r['level_1'] for r in rows])
+
+
+@app.route('/api/topics')
+@login_required
+def api_topics():
+    year, version = parse_exam(request.args.get('exam', ''))
+    if not year:
+        return jsonify([])
+    lo_hi = LEVEL_RANGES.get(request.args.get('difficulty', ''))
+    chapter = request.args.get('chapter', '')
+
+    conditions, params = ['year = ?', 'version = ?'], [year, version]
+    if lo_hi:
+        conditions.append('question_num BETWEEN ? AND ?')
+        params += list(lo_hi)
+    if chapter and chapter != 'All':
+        conditions.append('level_1 = ?')
+        params.append(chapter)
+
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            f"SELECT DISTINCT level_2 FROM problems WHERE {' AND '.join(conditions)} ORDER BY level_2",
+            params).fetchall()
+    finally:
+        conn.close()
+    return jsonify([r['level_2'] for r in rows])
+
+
+@app.route('/api/questions')
+@login_required
+def api_questions():
+    year, version = parse_exam(request.args.get('exam', ''))
+    if not year:
+        return jsonify([])
+    lo_hi = LEVEL_RANGES.get(request.args.get('difficulty', ''))
+    chapter = request.args.get('chapter', '')
+    topic = request.args.get('topic', '')
+
+    conditions, params = ['c.year = ?', 'c.version = ?'], [year, version]
+    if lo_hi:
+        conditions.append('c.question_num BETWEEN ? AND ?')
+        params += list(lo_hi)
+
+    exists_conditions = ['p.year = c.year', 'p.version = c.version', 'p.question_num = c.question_num']
+    exists_params = []
+    if chapter and chapter != 'All':
+        exists_conditions.append('p.level_1 = ?')
+        exists_params.append(chapter)
+    if topic and topic != 'All':
+        exists_conditions.append('p.level_2 = ?')
+        exists_params.append(topic)
+    if exists_params:
+        conditions.append(f"EXISTS (SELECT 1 FROM problems p WHERE {' AND '.join(exists_conditions)})")
+        params += exists_params
+
+    conn = get_db()
+    try:
+        rows = conn.execute(f'''
+            SELECT c.question_num, c.problem, c.solution
+            FROM problem_content c
+            WHERE {' AND '.join(conditions)}
+            ORDER BY c.question_num
+        ''', params).fetchall()
+
+        topic_rows = conn.execute(
+            'SELECT question_num, level_1, level_2 FROM problems WHERE year = ? AND version = ?',
+            (year, version)).fetchall()
+    finally:
+        conn.close()
+
+    topics_by_q = {}
+    for t in topic_rows:
+        topics_by_q.setdefault(t['question_num'], []).append((t['level_1'], t['level_2']))
+
+    exam_label = f"{year} AMC 10{version}"
+    results = []
+    for r in rows:
+        qn = r['question_num']
+        tags = topics_by_q.get(qn, [])
+        match = next((t for t in tags
+                      if (not chapter or chapter == 'All' or t[0] == chapter)
+                      and (not topic or topic == 'All' or t[1] == topic)), None)
+        if not match and tags:
+            match = tags[0]
+        ch = match[0] if match else (chapter if chapter and chapter != 'All' else '')
+        tp = match[1] if match else (topic if topic and topic != 'All' else '')
+        lvl = next((l for l, (lo, hi) in LEVEL_RANGES.items() if lo <= qn <= hi), '')
+        results.append({
+            'id': f"{year}{version}{qn}",
+            'exam': exam_label,
+            'lvl': lvl,
+            'ch': ch,
+            'tp': tp,
+            'stem': r['problem'],
+            'opts': [],
+            'c': 0,
+            'sol': [r['solution']] if r['solution'] else [],
+        })
+    return jsonify(results)
 
 
 if __name__ == '__main__':

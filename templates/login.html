@@ -3,26 +3,334 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - AMC 10 Problem Vault</title>
-    <link rel="stylesheet" href="/static/css/login.css">
+    <title>PrepAIR - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0F1338 0%, #1a1f4f 35%, #00B5B0 70%, #FF8A00 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(15, 19, 56, 0.3);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            background: transparent;
+            padding: 20px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: transparent;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .logo-container {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 20px;
+        }
+
+        .logo-star {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            position: relative;
+        }
+
+        .star {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            filter: drop-shadow(0 8px 16px rgba(255, 138, 0, 0.3));
+        }
+
+        .logo-text {
+            color: white;
+            margin-top: 15px;
+        }
+
+        .logo-text h1 {
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        .logo-text .prepair {
+            color: #FF8A00;
+        }
+
+        .logo-text .tagline {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .login-body {
+            padding: 40px;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0F1338;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0F1338;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E6F3FF;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #F8FAFB;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #FF8A00;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 138, 0, 0.1);
+        }
+
+        .error-message {
+            background: #FEE;
+            color: #C33;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border-left: 4px solid #C33;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FF8A00 0%, #FF9D1F 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(255, 138, 0, 0.3);
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 138, 0, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(255, 138, 0, 0.3);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #E6F3FF 0%, #F0F7FF 100%);
+            border: 1px solid #D0E6FF;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 25px;
+            font-size: 12px;
+            color: #0F1338;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: #FF8A00;
+            font-weight: 700;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #F8FAFB;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #E6F3FF;
+        }
+
+        .star-icon {
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        /* Logo Badge Styling */
+        .logo-badge {
+            display: inline-block;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .logo-badge .badge-logo {
+            display: block;
+            max-width: 160px;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            transition: all 0.3s ease;
+        }
+
+        .logo-badge:hover .badge-logo {
+            transform: scale(1.02);
+            opacity: 0.95;
+        }
+
+        /* Remove old image styling */
+        img:not(.badge-logo) {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .login-container {
+                border-radius: 12px;
+            }
+
+            .login-header {
+                padding: 20px 20px;
+            }
+
+            .logo-badge .badge-logo {
+                max-width: 120px;
+            }
+
+            .login-body {
+                padding: 30px 20px;
+            }
+
+            .login-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .login-header {
+                padding: 15px 15px;
+            }
+
+            .logo-badge .badge-logo {
+                max-width: 110px;
+            }
+
+            .login-body {
+                padding: 25px 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-box">
-            <div class="login-header">
-                <img src="/static/logo.png" alt="AMC Logo" class="login-logo">
-                <h1>AMC 10 Problem Vault</h1>
-                <p class="login-subtitle">Master Tutor Access</p>
+        <div class="login-header">
+            <div class="logo-badge">
+                <img src="https://raw.githubusercontent.com/Lalitha-Kalle/problems/refs/heads/main/PrepAIR%20Logo%202.png" alt="PrepAIR Logo" class="badge-logo">
             </div>
+        </div>
 
-            <form method="POST" class="login-form">
+
+        <div class="login-body">
+
+            {% if error %}
+            <div class="error-message">
+                <strong>⚠️ Error:</strong> {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('login') }}">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input
                         type="text"
                         id="username"
                         name="username"
-                        placeholder="Enter username"
+                        placeholder="Enter your username"
                         required
                         autofocus
                     >
@@ -34,20 +342,19 @@
                         type="password"
                         id="password"
                         name="password"
-                        placeholder="Enter password"
+                        placeholder="Enter your password"
                         required
                     >
                 </div>
 
-                {% if error %}
-                <div class="error-message">
-                    <span class="error-icon">⚠️</span>
-                    {{ error }}
-                </div>
-                {% endif %}
-
-                <button type="submit" class="login-btn">Login</button>
+                <button type="submit" class="login-button">
+                    Sign In
+                </button>
             </form>
+        </div>
+
+        <div class="footer">
+            <span class="star-icon">✦</span> PrepAIR Math Olympiad Platform
         </div>
     </div>
 </body>

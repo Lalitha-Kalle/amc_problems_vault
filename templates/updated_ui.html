@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrepAIR · Math Olympiad Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root {
+      --navy: #0F1338;
+      --orange: #FF8A00;
+      --teal: #00B5B0;
+      --blue-100: #E6F3FF;
+      --grey-100: #F2F4F7;
+      --ink: #0F1338;
+      --ink-soft: #5C627E;
+      --ink-faint: #9298B4;
+      --line: #E4E7F0;
+      --line-soft: #EEF0F7;
+      --surface: #FFFFFF;
+      --bg: #EDF0F7;
+      --orange-soft: #FFF1E0;
+      --teal-soft: #E1F6F5;
+      --navy-soft: #EAECF6;
+      --wrong: #E5484D;
+      --wrong-soft: #FCEDED;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 1px 2px rgba(15, 19, 56, .05), 0 10px 28px rgba(15, 19, 56, .07);
+      --spark: linear-gradient(135deg, #FF8A00 0%, #00B5B0 100%);
+      font-synthesis: none;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      font-family: "Poppins", system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cpath d='M70 44 Q76 64 96 70 Q76 76 70 96 Q64 76 44 70 Q64 64 70 44 Z' fill='none' stroke='%23DCE3EF' stroke-width='2'/%3E%3Cpath d='M26 18 Q29 27 38 30 Q29 33 26 42 Q23 33 14 30 Q23 27 26 18 Z' fill='none' stroke='%23E1E7F2' stroke-width='1.5'/%3E%3C/svg%3E");
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden
+    }
+
+    .app {
+      height: 100vh;
+      display: flex;
+      flex-direction: column
+    }
+
+    /* ---------- TOP BAR ---------- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 10px 18px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+      flex-wrap: wrap
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding-right: 2px
+    }
+
+    .mark {
+      width: 38px;
+      height: 38px;
+      flex-shrink: 0
+    }
+
+    .brand-logo {
+      height: 64px;
+      width: auto;
+      max-width: 160px;
+      object-fit: contain;
+      flex-shrink: 0
+    }
+
+    .wm {
+      font-weight: 700;
+      font-size: 21px;
+      letter-spacing: -.5px;
+      line-height: 1;
+      position: relative
+    }
+
+    .wm .p {
+      color: var(--navy)
+    }
+
+    .wm .a {
+      color: var(--orange)
+    }
+
+    .wm .pop {
+      position: absolute;
+      top: -7px;
+      right: -9px
+    }
+
+    .brand-sub {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--ink-faint);
+      letter-spacing: 1.1px;
+      margin-top: 4px
+    }
+
+    .filters {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      flex: 1
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0
+    }
+
+    .field:has(.lvl-pills){
+    width:120px;
+}
+
+    .field label {
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: .7px;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding-left: 2px
+    }
+
+    .select-wrap {
+      position: relative
+    }
+
+    select {
+      appearance: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 9px 30px 9px 12px;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+      min-width: 122px;
+      width: 100%
+    }
+
+    select:hover {
+      border-color: #CBD0E0
+    }
+
+    select:focus-visible {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--orange-soft)
+    }
+
+    .select-wrap::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      border-right: 2px solid var(--ink-soft);
+      border-bottom: 2px solid var(--ink-soft);
+      transform: translateY(-65%) rotate(45deg);
+      pointer-events: none
+    }
+
+    .field.exam select {
+      border-color: #FFD39A;
+      background: var(--orange-soft);
+      color: #B35F00;
+      font-weight: 600
+    }
+
+    .lvl-pills{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:6px;
+    background:#F3F4F7;
+    border:1px solid #E5E8EF;
+    border-radius:16px;
+    min-height:24px;
+}
+
+
+    .lvl-pills button{
+    min-width:28px;
+    height:28px;
+    border:none;
+    border-radius:8px;
+    background:transparent;
+    color:#5C627E;
+    font-size:18px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.lvl-pills button.active{
+    background:#FFFFFF;
+    color:#0F1338;
+    box-shadow:
+        0 1px 3px rgba(0,0,0,.08),
+        0 4px 10px rgba(0,0,0,.05);
+}
+
+.lvl-pills button:hover:not(.active){
+    background:rgba(255,255,255,.6);
+}
+
+.lvl-pills button:disabled{
+    opacity:.35;
+    cursor:not-allowed;
+}
+
+.lvl-pills button:disabled:hover{
+    background:transparent;
+}
+  
+
+    .lvl-pills button:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 2px
+    }
+
+    .cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 13px 6px 10px;
+      font-weight: 700;
+      font-size: 13.5px;
+      font-variant-numeric: tabular-nums
+    }
+
+    .stat.xp {
+      background: var(--orange-soft);
+      border: 1px solid #FFD8AC;
+      color: #B35F00
+    }
+
+    .stat.streak {
+      background: var(--teal-soft);
+      border: 1px solid #B5E7E4;
+      color: #067F7B
+    }
+
+    .stat.lvl {
+      background: var(--navy);
+      color: #fff
+    }
+
+    .stat .ic {
+      font-size: 14px;
+      line-height: 1
+    }
+
+    .stat.pulse {
+      animation: pop .42s ease
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(1)
+      }
+
+      42% {
+        transform: scale(1.26)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .iconbtn {
+      width: 37px;
+      height: 37px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--ink-soft);
+      transition: all .15s
+    }
+
+    .iconbtn:hover {
+      border-color: #CBD0E0;
+      color: var(--ink)
+    }
+
+    .iconbtn.off {
+      color: var(--ink-faint);
+      background: var(--grey-100)
+    }
+
+    .iconbtn:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 1px
+    }
+
+    #logoutBtn {
+      width: auto;
+      height: 37px;
+      padding: 0 14px;
+      border-color: var(--wrong-soft);
+      color: var(--wrong);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 10px;
+      border: 1.5px solid var(--wrong-soft);
+      background: var(--surface);
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    #logoutBtn:hover {
+      border-color: var(--wrong);
+      background: var(--wrong-soft);
+      color: var(--wrong)
+    }
+
+    #logoutBtn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0
+    }
+
+    /* ---------- SPLIT ---------- */
+    .split {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      padding: 14px;
+      gap: 14px
+    }
+
+    .pane {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden
+    }
+
+    .pane.left {
+      flex: 1 1 47%;
+      min-width: 0
+    }
+
+    .pane.right {
+      flex: 1 1 53%;
+      min-width: 0
+    }
+
+    .lhead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      padding: 0 16px;
+      flex-shrink: 0
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px
+    }
+
+    .tab {
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--ink-soft);
+      padding: 15px 6px 12px;
+      margin-right: 20px;
+      border-bottom: 3px solid transparent;
+      transition: color .15s;
+      display: flex;
+      align-items: center;
+      gap: 7px
+    }
+
+    .tab:hover {
+      color: var(--ink)
+    }
+
+    .tab.active {
+      color: var(--navy);
+      border-bottom-color: var(--orange)
+    }
+
+    .tab.solution.active {
+      border-bottom-color: var(--teal);
+      color: #067F7B
+    }
+
+    .tab:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: -2px;
+      border-radius: 4px
+    }
+
+    .qcounter {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-faint);
+      letter-spacing: .3px
+    }
+
+    .lbody {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 26px 120px
+    }
+
+    .lbody::-webkit-scrollbar {
+      width: 9px
+    }
+
+    .lbody::-webkit-scrollbar-thumb {
+      background: #D3D8E8;
+      border-radius: 9px;
+      border: 2px solid var(--surface)
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 20px
+    }
+
+    .tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 7px;
+      background: var(--grey-100);
+      color: var(--ink-soft)
+    }
+
+    .tag.exam {
+      background: var(--orange-soft);
+      color: #B35F00
+    }
+
+    .tag.lvl {
+      background: var(--navy-soft);
+      color: var(--navy)
+    }
+
+    .tag.topic {
+      background: var(--teal-soft);
+      color: #067F7B
+    }
+
+    .stem {
+      font-size: 18px;
+      line-height: 1.62;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 22px
+    }
+
+    .stem .qn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      height: 30px;
+      padding: 0 8px;
+      border-radius: 8px;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      margin-right: 10px;
+      vertical-align: 1px
+    }
+
+    .math {
+      font-weight: 600;
+      color: var(--navy)
+    }
+
+    .opts {
+      display: flex;
+      flex-direction: column;
+      gap: 9px
+    }
+
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 13px 15px;
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    .opt:hover:not(.locked) {
+      border-color: #C4C9DC;
+      background: #FBFCFE
+    }
+
+    .opt .key {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      background: var(--grey-100);
+      color: var(--ink-soft);
+      font-weight: 700;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+      transition: all .15s
+    }
+
+    .opt.picked {
+      border-color: var(--orange);
+      background: var(--orange-soft)
+    }
+
+    .opt.picked .key {
+      background: var(--orange);
+      color: #fff
+    }
+
+    .opt.correct {
+      border-color: var(--teal);
+      background: var(--teal-soft)
+    }
+
+    .opt.correct .key {
+      background: var(--teal);
+      color: #fff
+    }
+
+    .opt.wrong {
+      border-color: var(--wrong);
+      background: var(--wrong-soft)
+    }
+
+    .opt.wrong .key {
+      background: var(--wrong);
+      color: #fff
+    }
+
+    .opt.locked {
+      cursor: default
+    }
+
+    .opt .res {
+      margin-left: auto;
+      font-size: 18px;
+      opacity: 0;
+      transition: opacity .2s
+    }
+
+    .opt.correct .res,
+    .opt.wrong .res {
+      opacity: 1
+    }
+
+    .opt:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 1px
+    }
+
+    .qactions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      color: var(--ink-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all .15s
+    }
+
+    .btn:hover {
+      border-color: #C4C9DC;
+      color: var(--ink)
+    }
+
+    .btn.primary {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff
+    }
+
+    .btn.primary:hover {
+      background: #E97D00;
+      border-color: #E97D00
+    }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: default
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 1px
+    }
+
+    .btn svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0
+    }
+
+    .reveal-note {
+      font-size: 13px;
+      font-weight: 500;
+      color: #067F7B;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 14px
+    }
+
+    .reveal-note svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0
+    }
+
+    .hint-card {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      background: var(--blue-100);
+      border: 1px solid #CDE6FB;
+      border-radius: 11px;
+      padding: 12px 14px;
+      margin-top: 10px;
+      animation: slidein .3s ease
+    }
+
+    @keyframes slidein {
+      from {
+        opacity: 0;
+        transform: translateY(6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .hint-card .hi {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 2px
+    }
+
+    .hint-card .hlabel {
+      display: block;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: #1C6FB8;
+      margin-bottom: 3px
+    }
+
+    .hint-card .ht {
+      font-size: 14.5px;
+      line-height: 1.5;
+      font-weight: 500;
+      color: var(--navy)
+    }
+
+    /* solution */
+    .ms-intro {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .ms-intro .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal)
+    }
+
+    .step {
+      display: flex;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line-soft)
+    }
+
+    .step:last-child {
+      border-bottom: none
+    }
+
+    .step-i {
+      width: 25px;
+      height: 25px;
+      border-radius: 8px;
+      background: var(--teal-soft);
+      color: #067F7B;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      margin-top: 1px
+    }
+
+    .step-note {
+      font-size: 15.5px;
+      line-height: 1.55;
+      font-weight: 500;
+      color: var(--ink);
+      flex: 1
+    }
+
+    .answer-box {
+      margin-top: 20px;
+      background: var(--navy);
+      border-radius: 11px;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #fff
+    }
+
+    .answer-box .lbl {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: #9298C8
+    }
+
+    .answer-box .key {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--orange);
+      color: #fff;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      font-size: 15px
+    }
+
+    .answer-box .val {
+      font-size: 17px;
+      font-weight: 600
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--ink-faint);
+      padding: 64px 20px;
+      font-size: 14px
+    }
+
+    .empty strong {
+      display: block;
+      color: var(--ink-soft);
+      font-size: 15px;
+      margin-bottom: 6px;
+      font-weight: 600
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-top: 1px solid var(--line);
+      padding: 11px 14px;
+      flex-shrink: 0;
+      background: var(--surface)
+    }
+
+    .navbtn {
+      width: 35px;
+      height: 35px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      color: var(--ink-soft);
+      transition: all .15s;
+      flex-shrink: 0
+    }
+
+    .navbtn:hover:not(:disabled) {
+      border-color: var(--orange);
+      color: var(--orange);
+      background: var(--orange-soft)
+    }
+
+    .navbtn:disabled {
+      opacity: .35;
+      cursor: not-allowed
+    }
+
+    .navbtn:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 1px
+    }
+
+    .palette {
+      flex: 1;
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 2px 4px;
+      scrollbar-width: none
+    }
+
+    .palette::-webkit-scrollbar {
+      display: none
+    }
+
+    .pchip {
+      min-width: 44px;
+      height: 31px;
+      border-radius: 9px;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all .12s;
+      font-variant-numeric: tabular-nums;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .pchip:hover {
+      border-color: #C4C9DC
+    }
+
+    .pchip.active {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff
+    }
+
+    .pchip.done::after {
+      content: "";
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: 1.5px solid var(--surface)
+    }
+
+    .pchip:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 1px
+    }
+
+    /* whiteboard */
+    .wbhead {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      border-bottom: 1px solid var(--line);
+      padding: 9px 14px;
+      flex-shrink: 0;
+      flex-wrap: wrap
+    }
+
+    .wbtitle {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: auto
+    }
+
+    .wbtitle svg {
+      color: var(--orange)
+    }
+
+    .toolgrp {
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      cursor: pointer;
+      box-shadow: 0 0 0 1.5px var(--line);
+      transition: transform .12s
+    }
+
+    .swatch:hover {
+      transform: scale(1.12)
+    }
+
+    .swatch.active {
+      box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--navy)
+    }
+
+    .swatch:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 2px
+    }
+
+    .tbtn {
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      color: var(--ink-soft);
+      padding: 7px 11px;
+      border-radius: 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .15s
+    }
+
+    .tbtn:hover {
+      border-color: #C4C9DC;
+      color: var(--ink)
+    }
+
+    .tbtn.active {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy)
+    }
+
+    .tbtn:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 1px
+    }
+
+    .sizes {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .sizes input {
+      width: 72px;
+      accent-color: var(--orange);
+      cursor: pointer
+    }
+
+    .sep {
+      width: 1px;
+      height: 22px;
+      background: var(--line)
+    }
+
+    .board-wrap {
+      flex: 1;
+      position: relative;
+      min-height: 0;
+      background: #FBFCFE;
+      overflow: hidden
+    }
+
+    .board-wrap.grid {
+      background-image: linear-gradient(#D9E6F5 1px, transparent 1px), linear-gradient(90deg, #D9E6F5 1px, transparent 1px);
+      background-size: 26px 26px;
+      background-position: -1px -1px
+    }
+
+    #board {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none
+    }
+
+    .wb-hint {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--ink-faint);
+      font-size: 13px;
+      pointer-events: none;
+      text-align: center;
+      transition: opacity .4s
+    }
+
+    .wb-hint span {
+      display: block;
+      font-size: 11px;
+      margin-top: 4px;
+      color: #B4BAD0
+    }
+
+    /* ---------- THEORY ---------- */
+    .tab.theory.active {
+      border-bottom-color: var(--navy);
+      color: var(--navy)
+    }
+
+    .sec {
+      margin-bottom: 26px
+    }
+
+    .sec:last-child {
+      margin-bottom: 4px
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 13px
+    }
+
+    .eyebrow .bar {
+      width: 15px;
+      height: 3px;
+      border-radius: 3px;
+      background: var(--orange)
+    }
+
+    .tsummary {
+      font-size: 16px;
+      line-height: 1.62;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 24px
+    }
+
+    .concept {
+      border-left: 3px solid var(--teal);
+      background: var(--teal-soft);
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      margin-bottom: 9px
+    }
+
+    .concept h4 {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #067F7B;
+      margin-bottom: 3px
+    }
+
+    .concept p {
+      font-size: 14.5px;
+      line-height: 1.55;
+      font-weight: 500;
+      color: var(--ink)
+    }
+
+    .sheet {
+      background: var(--navy);
+      border-radius: 12px;
+      padding: 6px 18px
+    }
+
+    .sheet .srow {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .09);
+      color: #EAF0FF;
+      font-size: 14.5px;
+      font-weight: 500;
+      line-height: 1.45
+    }
+
+    .sheet .srow:last-child {
+      border-bottom: none
+    }
+
+    .sheet .srow .fx {
+      color: var(--orange);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px
+    }
+
+    .ex {
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 18px
+    }
+
+    .ex .exq {
+      font-size: 15.5px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 12px
+    }
+
+    .exstep {
+      display: flex;
+      gap: 12px;
+      padding: 8px 0;
+      animation: slidein .3s ease
+    }
+
+    .exstep .n {
+      width: 23px;
+      height: 23px;
+      border-radius: 7px;
+      background: var(--orange-soft);
+      color: #B35F00;
+      font-size: 12px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0
+    }
+
+    .exstep .b {
+      font-size: 14.5px;
+      line-height: 1.5;
+      font-weight: 500;
+      color: var(--ink)
+    }
+
+    .exans {
+      margin-top: 12px;
+      background: var(--teal-soft);
+      border: 1px solid #B5E7E4;
+      border-radius: 9px;
+      padding: 11px 14px;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: #067F7B
+    }
+
+    .trap {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      background: var(--orange-soft);
+      border: 1px solid #FFD8AC;
+      border-radius: 10px;
+      padding: 11px 14px;
+      margin-bottom: 8px
+    }
+
+    .trap .ti {
+      flex-shrink: 0;
+      color: var(--orange);
+      margin-top: 1px
+    }
+
+    .trap p {
+      font-size: 14px;
+      line-height: 1.5;
+      font-weight: 500;
+      color: #7A4A00
+    }
+
+    .figcard {
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px
+    }
+
+    .figcard svg.fig {
+      max-width: 260px;
+      height: auto
+    }
+
+    .pdfzone {
+      border: 2px dashed #CBD3E6;
+      border-radius: 12px;
+      padding: 28px 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    .pdfzone:hover,
+    .pdfzone.over {
+      border-color: var(--orange);
+      background: var(--orange-soft)
+    }
+
+    .pdfzone .big {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 4px
+    }
+
+    .pdfzone .sm {
+      font-size: 12px;
+      color: var(--ink-soft)
+    }
+
+    .pdfwrap {
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden
+    }
+
+    .pdfbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      background: var(--grey-100);
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy)
+    }
+
+    .pdfbar svg {
+      color: var(--orange);
+      flex-shrink: 0
+    }
+
+    .pdfbar .nm {
+      margin-right: auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .pdfframe {
+      width: 100%;
+      height: 440px;
+      border: none;
+      display: block;
+      background: #fff
+    }
+
+    .linkbtn {
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.5px solid var(--line);
+      background: #fff;
+      color: var(--ink-soft);
+      border-radius: 8px;
+      padding: 6px 11px;
+      cursor: pointer;
+      flex-shrink: 0
+    }
+
+    .linkbtn:hover {
+      border-color: #C4C9DC;
+      color: var(--ink)
+    }
+
+    /* ---------- ENGAGEMENT ---------- */
+    #fx {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 60
+    }
+
+    .dock {
+      position: fixed;
+      left: 120px;
+      bottom: 16px;
+      z-index: 55;
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 255, 255, .86);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 138, 0, .25);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: 0 12px 34px rgba(15, 19, 56, .2)
+    }
+
+    .react {
+      width: 54px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 12px;
+      padding: 7px 4px 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      transition: transform .12s, background .15s
+    }
+
+    .react:hover {
+      background: var(--orange-soft);
+      transform: translateY(-3px)
+    }
+
+    .react:active {
+      transform: translateY(-1px) scale(.94)
+    }
+
+    .react .em {
+      font-size: 22px;
+      line-height: 1
+    }
+
+    .react .lb {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: var(--ink-soft)
+    }
+
+    .react:focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 1px
+    }
+
+    .dock-tip {
+      position: absolute;
+      left: 14px;
+      top: -25px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: #B79A7A
+    }
+
+    #toastWrap {
+      position: fixed;
+      top: 74px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 58;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      pointer-events: none
+    }
+
+    .toast {
+      background: var(--navy);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 11px 20px;
+      border-radius: 999px;
+      box-shadow: 0 8px 24px rgba(15, 19, 56, .3);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      animation: tin .3s ease
+    }
+
+    @keyframes tin {
+      from {
+        opacity: 0;
+        transform: translateY(-12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .toast.out {
+      animation: tout .35s ease forwards
+    }
+
+    @keyframes tout {
+      to {
+        opacity: 0;
+        transform: translateY(-10px)
+      }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      * {
+        animation: none !important
+      }
+    }
+
+    @media (max-width:900px) {
+      body {
+        overflow: auto
+      }
+
+      .app {
+        height: auto;
+        min-height: 100vh
+      }
+
+      .split {
+        flex-direction: column;
+        height: auto;
+        padding: 12px;
+        padding-bottom: 120px
+      }
+
+      .pane.left,
+      .pane.right {
+        flex: none
+      }
+
+      .board-wrap {
+        min-height: 420px
+      }
+
+      .filters {
+        width: 100%
+      }
+
+      .field,
+      .select-wrap,
+      select {
+        flex: 1
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M4 24 Q19 19 24 4 Q29 19 44 24" fill="none" stroke="#FF8A00" stroke-width="3.4"
+            stroke-linecap="round" />
+          <path d="M44 24 Q29 29 24 44 Q19 29 4 24" fill="none" stroke="#00B5B0" stroke-width="3.4"
+            stroke-linecap="round" />
+          <path d="M40 8 l3 -4 M44 12 l4 -2 M43 17 l4 1" stroke="#FF8A00" stroke-width="2.4" stroke-linecap="round" />
+        </svg>
+        <div>
+          <div class="wm"><span class="p">Prep</span><span class="a">AIR</span></div>
+          <div class="brand-sub">MATH OLYMPIAD · MIDDLE SCHOOL</div>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="field exam"><label for="selExam">Exam</label>
+          <div class="select-wrap"><select id="selExam"></select></div>
+        </div>
+        <div class="field"><label>Difficulty</label>
+          <div class="lvl-pills" id="lvlPills" role="group" aria-label="Difficulty level"></div>
+        </div>
+        <div class="field"><label for="selChapter">Chapter</label>
+          <div class="select-wrap"><select id="selChapter"></select></div>
+        </div>
+        <div class="field"><label for="selTopic">Topic</label>
+          <div class="select-wrap"><select id="selTopic"></select></div>
+        </div>
+      </div>
+      <div class="cluster">
+        <div class="stat lvl" id="lvlStat" title="Class level">Lv <span id="lvlN">1</span></div>
+        <div class="stat xp" id="xpStat" title="XP earned this lesson"><span class="ic">✨</span><span id="xpN">0</span>
+        </div>
+        <div class="stat streak" id="streakStat" title="Correct streak"><span class="ic">🔥</span><span
+            id="streakN">0</span></div>
+        <button class="iconbtn" id="soundBtn" aria-label="Toggle sound" title="Sound on"><svg width="18" height="18"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 5L6 9H2v6h4l5 4V5z" />
+            <path d="M15.5 8.5a5 5 0 010 7M19 5a9 9 0 010 14" />
+          </svg></button>
+        <button class="iconbtn" id="logoutBtn" aria-label="Logout" title="Logout"><svg width="18" height="18"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+          </svg>Logout</button>
+      </div>
+    </header>
+
+    <div class="split">
+      <section class="pane left">
+        <div class="lhead">
+          <div class="tabs" role="tablist">
+            <button class="tab theory active" id="tabT" role="tab"><svg width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z" />
+                <path d="M4 20.5A2.5 2.5 0 016.5 18H20" />
+              </svg>Theory</button>
+            <button class="tab" id="tabQ" role="tab"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M9.5 9a2.5 2.5 0 015 .2c0 1.8-2.5 2-2.5 3.8" />
+                <path d="M12 17h.01" />
+              </svg>Question</button>
+            <button class="tab solution" id="tabS" role="tab"><svg width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>Solution</button>
+          </div>
+          <div class="qcounter" id="qCounter">—</div>
+        </div>
+        <div class="lbody" id="lbody"></div>
+        <div class="nav">
+          <button class="navbtn" id="prevBtn" aria-label="Previous question"><svg width="16" height="16"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+              <path d="M15 18l-6-6 6-6" />
+            </svg></button>
+          <div class="palette" id="palette"></div>
+          <button class="navbtn" id="nextBtn" aria-label="Next question"><svg width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.4">
+              <path d="M9 18l6-6-6-6" />
+            </svg></button>
+        </div>
+      </section>
+
+      <section class="pane right">
+        <div class="wbhead">
+          <div class="wbtitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.2">
+              <path d="M12 19l7-7 3 3-7 7-3-3z" />
+              <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+              <path d="M2 2l7.586 7.586" />
+            </svg>Whiteboard</div>
+          <div class="toolgrp" id="swatches"></div>
+          <div class="sep"></div>
+          <div class="sizes"><input type="range" id="sizeRange" min="1" max="14" value="3" aria-label="Pen size"><span
+              id="sizeVal" style="font-size:12px;font-weight:600;color:var(--ink-soft);width:34px">3px</span></div>
+          <div class="sep"></div>
+          <button class="tbtn" id="penBtn">Pen</button>
+          <button class="tbtn" id="eraseBtn">Eraser</button>
+          <button class="tbtn" id="gridBtn">Squared</button>
+          <button class="tbtn" id="undoBtn">Undo</button>
+          <button class="tbtn" id="clearBtn">Clear</button>
+          <button class="tbtn" id="saveBtn" style="border-color:var(--orange);color:#B35F00">Save PNG</button>
+        </div>
+        <div class="board-wrap grid" id="boardWrap">
+          <canvas id="board"></canvas>
+          <div class="wb-hint" id="wbHint">Work the problem out here<span>squared paper · pen · eraser · undo</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <canvas id="fx"></canvas>
+  <!-- <div id="toastWrap"></div> -->
+  <!-- <div class="dock" id="dock" role="toolbar" aria-label="Celebration reactions">
+    <div class="dock-tip">✦ Celebrate &amp; encourage</div>
+  </div> -->
+
+  <script>
+    const CHAPTERS = ["Number Theory", "Algebra", "Geometry", "Combinatorics", "Logic & Puzzles"];
+    /* Questions loaded dynamically from olympiad_questions.db */
+    let Q = [];
+
+    const DIA_TRI = '<svg xmlns="http://www.w3.org/2000/svg" class="fig" width="240" height="180" viewBox="0 0 240 180"><polygon points="40,150 210,150 96,42" fill="#E1F6F5" stroke="#0F1338" stroke-width="3" stroke-linejoin="round"/><path d="M40 150 a22 22 0 0 1 14 -18" fill="none" stroke="#FF8A00" stroke-width="2.5"/><path d="M210 150 a22 22 0 0 0 -16 -16" fill="none" stroke="#FF8A00" stroke-width="2.5"/><text x="30" y="170" font-family="Poppins,sans-serif" font-size="14" font-weight="600" fill="#0F1338">A</text><text x="212" y="170" font-family="Poppins,sans-serif" font-size="14" font-weight="600" fill="#0F1338">B</text><text x="90" y="34" font-family="Poppins,sans-serif" font-size="14" font-weight="600" fill="#0F1338">C</text></svg>';
+    const DIA_RECT = '<svg xmlns="http://www.w3.org/2000/svg" class="fig" width="250" height="160" viewBox="0 0 250 160"><rect x="40" y="38" width="170" height="86" fill="#E6F3FF" stroke="#0F1338" stroke-width="3"/><text x="118" y="28" font-family="Poppins,sans-serif" font-size="14" font-weight="600" fill="#0F1338">l</text><text x="22" y="86" font-family="Poppins,sans-serif" font-size="14" font-weight="600" fill="#0F1338">w</text></svg>';
+    const DIA_GRID = '<svg xmlns="http://www.w3.org/2000/svg" class="fig" width="170" height="170" viewBox="0 0 170 170"><rect x="22" y="22" width="126" height="126" fill="#F2F4F7" stroke="#0F1338" stroke-width="3"/><path d="M64 22V148 M106 22V148 M22 64H148 M22 106H148" stroke="#0F1338" stroke-width="2"/></svg>';
+
+    /* Per-topic theory, tied to the Chapter/Topic taxonomy. s=summary, p=concept cards, f=quick reference, e=worked example, t=traps, d=diagram */
+    const THEORY = {
+      "Divisibility": { s: "Divisibility rules let you test for factors at a glance, without doing the full division.", p: [["Definition", "a is divisible by b when a \u00f7 b leaves no remainder \u2014 that is, a = b \u00d7 k for a whole number k."], ["The everyday rules", "2: last digit even. 3: digit sum divisible by 3. 4: last two digits divisible by 4. 5: ends in 0 or 5. 9: digit sum divisible by 9."], ["Combine coprime tests", "Divisible by two numbers with no common factor \u21d2 divisible by their product (by 2 and 3 \u21d2 by 6)."]], f: ["Div by 6 \u21d4 div by 2 and 3", "Div by 12 \u21d4 div by 3 and 4", "Test 4 and 25 with the last two digits", "Test 3 and 9 with the digit sum"], e: { q: "How many integers from 1 to 60 are divisible by 4 but not by 6?", steps: ["Multiples of 4 up to 60: 60 \u00f7 4 = 15.", "Numbers divisible by both 4 and 6 are multiples of 12: 60 \u00f7 12 = 5.", "15 \u2212 5 = 10."], ans: "10" }, t: ["Testing 4 with only the last digit \u2014 it\u2019s the last two digits.", "Reading \u2018divisible by 2 and 3\u2019 as divisible by 5 instead of 6.", "Listing multiples by hand instead of dividing."] },
+      "Primes & Factors": { s: "Primes are the building blocks: every integer above 1 breaks into primes in exactly one way.", p: [["Prime", "A whole number above 1 with exactly two factors, 1 and itself. 1 is not prime; 2 is the only even prime."], ["Prime factorisation", "Write a number as a product of primes, e.g. 60 = 2\u00b2 \u00d7 3 \u00d7 5."], ["Counting factors", "If n = p^a \u00d7 q^b \u00d7 \u2026 then n has (a+1)(b+1)\u2026 factors."]], f: ["Factor count = (a+1)(b+1)\u2026 from the prime powers", "Primes under 20: 2,3,5,7,11,13,17,19", "60 = 2\u00b2\u00b73\u00b75 \u21d2 3\u00d72\u00d72 = 12 factors"], e: { q: "How many factors does 36 have?", steps: ["Prime factorise: 36 = 2\u00b2 \u00d7 3\u00b2.", "Add one to each exponent: (2+1)(2+1).", "= 3 \u00d7 3 = 9 factors."], ans: "9" }, t: ["Calling 1 a prime, or forgetting 2 is the only even prime.", "Listing factors and missing a pair \u2014 use the exponent rule.", "Stopping a factor tree before every branch is prime."] },
+      "Remainders": { s: "Thinking in remainders (modular arithmetic) exposes the cycles hiding inside repeated operations.", p: [["The division statement", "a = b \u00d7 q + r, with 0 \u2264 r < b. r is the remainder."], ["Cycles", "Last digits and remainders of powers repeat in a fixed-length cycle \u2014 find the length first."], ["Mod notation", "a \u2261 r (mod b) means a and r leave the same remainder when divided by b."]], f: ["a = bq + r, 0 \u2264 r < b", "Last digits of 7, 7\u00b2, 7\u00b3\u2026 cycle 7,9,3,1", "Remainder of a sum = sum of the remainders"], e: { q: "What is the remainder when 7\u00b9\u2070\u2070 is divided by 10?", steps: ["Last digits of powers of 7 go 7, 9, 3, 1 and repeat every 4.", "100 \u00f7 4 leaves remainder 0, so take the last in the cycle.", "That digit is 1."], ans: "1" }, t: ["Letting the remainder be as large as, or larger than, the divisor.", "Counting the cycle position one step off.", "Assuming a cycle starts at 0 rather than the first term."] },
+      "Digits": { s: "Digit problems run on place value and digit sums \u2014 turn the digits into algebra.", p: [["Place value", "A two-digit number with tens digit a and units digit b equals 10a + b."], ["Digit sum", "The digit sum links straight to divisibility by 3 and 9."], ["Reversing", "Reversing the digits gives 10b + a; the difference is always 9(a \u2212 b)."]], f: ["Two-digit value = 10a + b", "Reverse difference = 9(a \u2212 b)", "Digit sum \u2261 the number (mod 9)"], e: { q: "A two-digit number equals 7 times its units digit. Find it.", steps: ["Let it be 10a + b = 7b.", "10a = 6b, so 5a = 3b.", "a = 3, b = 5 gives 35, and 7 \u00d7 5 = 35. \u2713"], ans: "35" }, t: ["Swapping tens and units inside 10a + b.", "Allowing a leading 0 in a \u2018two-digit\u2019 number.", "Forgetting digits must be whole numbers 0\u20139."] },
+      "Word Problems": { s: "The skill is translation: turn the sentence into an equation, solve, then read the answer back.", p: [["Name the unknown", "Let the quantity asked for (or a helpful related one) be x."], ["Translate the words", "\u2018more than\u2019 \u2192 +, \u2018times\u2019 \u2192 \u00d7, \u2018is\u2019 \u2192 =."], ["Check against the words", "Put your answer back into the original sentence."]], f: ["\u2018k more than x\u2019 = x + k", "\u2018twice x\u2019 = 2x", "Solve, then answer the exact question asked"], e: { q: "Anya is 4 years older than Ben. In 3 years their ages add to 26. How old is Ben now?", steps: ["Let Ben = b, so Anya = b + 4.", "In 3 years: (b + 3) + (b + 4 + 3) = 26.", "2b + 10 = 26, so b = 8."], ans: "Ben is 8" }, t: ["Never clearly defining the variable.", "Adding the 3 years to only one person.", "Answering for the wrong person."] },
+      "Sequences": { s: "Find the rule that links the terms, then leap straight to any term you need.", p: [["Arithmetic", "Constant difference d. The nth term is a + (n \u2212 1)d."], ["Geometric", "Constant ratio r. The nth term is a \u00b7 r^(n\u22121)."], ["Famous ones", "Triangular n(n+1)/2; Fibonacci adds the previous two terms."]], f: ["Arithmetic: a\u2099 = a + (n \u2212 1)d", "Geometric: a\u2099 = a\u00b7r^(n\u22121)", "Triangular: T\u2099 = n(n+1)/2"], e: { q: "Find the 20th term of 4, 7, 10, 13, \u2026", steps: ["Arithmetic with a = 4 and d = 3.", "a\u2082\u2080 = 4 + 19 \u00d7 3.", "= 4 + 57 = 61."], ans: "61" }, t: ["Using n where the formula needs (n \u2212 1).", "Assuming a sequence is arithmetic without checking the difference is constant.", "Confusing the term number with its value."] },
+      "Linear Equations": { s: "Keep the scales balanced \u2014 whatever you do to one side, do to the other.", p: [["Inverse operations", "Undo +/\u2212 and \u00d7/\u00f7 in reverse order to isolate x."], ["Brackets first", "Expand, or divide the whole equation through, before collecting terms."], ["x on both sides", "Gather the x terms on one side, numbers on the other."]], f: ["ax + b = c \u21d2 x = (c \u2212 b)/a", "Do the same operation to both sides", "a(x + k) = ax + ak"], e: { q: "Solve 4(x \u2212 1) = 2x + 6.", steps: ["Expand: 4x \u2212 4 = 2x + 6.", "Subtract 2x: 2x \u2212 4 = 6.", "Add 4, divide by 2: x = 5."], ans: "x = 5" }, t: ["Multiplying only the first term inside the bracket.", "Sign slips when moving a term across the equals sign.", "Dividing before the x term is on its own."] },
+      "Ratios": { s: "A ratio splits a whole into parts \u2014 the key move is finding the value of one part.", p: [["Total parts", "Add the ratio numbers to get the number of parts."], ["One part", "Divide the total amount by the total parts."], ["Scaling", "Equivalent ratios multiply both sides by the same number."]], f: ["one part = total \u00f7 (sum of ratio terms)", "a : b shares = a\u00b7part and b\u00b7part", "a : b = ka : kb"], e: { q: "Share 48 in the ratio 3 : 5. What is the larger share?", steps: ["Total parts = 3 + 5 = 8.", "One part = 48 \u00f7 8 = 6.", "Larger share = 5 \u00d7 6 = 30."], ans: "30" }, t: ["Dividing by one ratio number instead of the sum.", "Giving the smaller share when the larger is asked for.", "Dropping the units in the final answer."] },
+      "Angles": { s: "Almost every angle chase comes back to three facts: lines, triangles and polygons.", p: [["On a straight line", "Angles on a straight line add to 180\u00b0; around a point, 360\u00b0."], ["In a triangle", "The interior angles of any triangle add to 180\u00b0."], ["In polygons", "An n-sided polygon\u2019s interior angles add to (n \u2212 2) \u00d7 180\u00b0."]], f: ["Straight line = 180\u00b0, point = 360\u00b0", "Triangle = 180\u00b0, quadrilateral = 360\u00b0", "Regular n-gon angle = (n\u22122)\u00b7180\u00b0 \u00f7 n"], e: { q: "Find each interior angle of a regular pentagon.", steps: ["Angle sum = (5 \u2212 2) \u00d7 180\u00b0 = 540\u00b0.", "Regular means 5 equal angles.", "540\u00b0 \u00f7 5 = 108\u00b0."], ans: "108\u00b0" }, t: ["Using (n\u22122)\u00b7180 as one angle instead of the whole sum.", "Dividing equally without checking the shape is regular.", "Mixing up interior and exterior angles."], d: DIA_TRI },
+      "Area & Perimeter": { s: "Area measures the covering; perimeter measures the boundary \u2014 keep the two formulas apart.", p: [["Rectangle", "Area = length \u00d7 width; perimeter = 2(length + width)."], ["Triangle", "Area = \u00bd \u00d7 base \u00d7 height (height is perpendicular to the base)."], ["Circle", "Area = \u03c0r\u00b2; circumference = 2\u03c0r, using the radius."]], f: ["Rectangle: A = lw, P = 2(l + w)", "Triangle: A = \u00bd b h", "Circle: A = \u03c0r\u00b2, C = 2\u03c0r"], e: { q: "A rectangle has area 48 and width 6. Find its perimeter.", steps: ["Length = 48 \u00f7 6 = 8.", "Perimeter = 2 \u00d7 (8 + 6).", "= 28."], ans: "28" }, t: ["Swapping the area and perimeter formulas.", "Using the diameter where the formula wants the radius.", "Dropping the \u00bd in the triangle\u2019s area."], d: DIA_RECT },
+      "Triangles": { s: "Classify by sides and angles, and never forget the triangle inequality.", p: [["Types", "Equilateral (all equal), isosceles (two equal), scalene (none equal)."], ["Angle sum", "The three angles always total 180\u00b0."], ["Triangle inequality", "Any two sides must add to more than the third, or no triangle exists."]], f: ["Angle sum = 180\u00b0", "Triangle inequality: a + b > c", "Isosceles: the base angles are equal"], e: { q: "Can sides 3, 4 and 8 form a triangle?", steps: ["Add the two shorter sides: 3 + 4 = 7.", "7 is not greater than 8.", "So these lengths cannot form a triangle."], ans: "No" }, t: ["Assuming any three lengths make a triangle.", "Forgetting that isosceles base angles are equal.", "Comparing the wrong pair of sides."], d: DIA_TRI },
+      "Counting Shapes": { s: "Count by size and by building block, and guard against counting the same shape twice.", p: [["Be systematic", "Count the smallest shapes first, then larger combinations."], ["No double counting", "Track which pieces you have already used."], ["Reach for patterns", "Grids and triangular arrays follow neat counting formulas."]], f: ["Squares in an n\u00d7n grid = 1\u00b2 + 2\u00b2 + \u2026 + n\u00b2", "Count by size, then add the sizes", "Total = wanted + unwanted"], e: { q: "How many squares are in a 3 \u00d7 3 grid of unit squares?", steps: ["1\u00d71 squares: 9.", "2\u00d72 squares: 4.", "3\u00d73 squares: 1. Total = 9 + 4 + 1 = 14."], ans: "14" }, t: ["Counting only the smallest squares.", "Double counting overlapping shapes.", "Forgetting the single largest square."], d: DIA_GRID },
+      "Probability": { s: "For equally likely outcomes, probability is just favourable \u00f7 total.", p: [["Basic rule", "P(event) = favourable outcomes \u00f7 total outcomes."], ["The range", "0 \u2264 P \u2264 1: impossible is 0, certain is 1."], ["Complement", "P(not A) = 1 \u2212 P(A) \u2014 ideal for \u2018at least\u2019 questions."]], f: ["P = favourable \u00f7 total", "P(not A) = 1 \u2212 P(A)", "Independent: P(A and B) = P(A)\u00b7P(B)"], e: { q: "Two coins are tossed. What is P(at least one head)?", steps: ["Outcomes: HH, HT, TH, TT \u2014 4 in total.", "\u2018At least one head\u2019 is everything except TT, so 3.", "P = 3/4."], ans: "3/4" }, t: ["Counting outcomes that aren\u2019t equally likely.", "Missing the complement shortcut for \u2018at least\u2019.", "Adding probabilities that should be multiplied."] },
+      "Permutations": { s: "When order matters, multiply the choices available at each step.", p: [["Multiplication principle", "Multiply the number of choices at each stage."], ["Factorials", "n distinct items arrange in n! ways."], ["No repeats", "Each step has one fewer choice than the last."]], f: ["Arrangements of n items = n!", "r from n, order matters = n!/(n\u2212r)!", "Independent stages multiply"], e: { q: "How many 3-digit numbers use the digits 1\u20135 with no repeats?", steps: ["Hundreds digit: 5 choices.", "Tens: 4 left; units: 3 left.", "5 \u00d7 4 \u00d7 3 = 60."], ans: "60" }, t: ["Adding stages instead of multiplying.", "Allowing repeats when they\u2019re banned.", "Permitting a leading zero where it isn\u2019t allowed."] },
+      "Counting": { s: "Break a hard count into independent choices, or into clean separate cases.", p: [["Product rule", "Independent choices multiply together."], ["Sum rule", "Mutually exclusive cases add together."], ["Casework", "Split a tangled count into tidy cases, then total them."]], f: ["Independent choices: multiply", "Exclusive cases: add", "Wanted = total \u2212 unwanted"], e: { q: "How many even two-digit numbers are there?", steps: ["Tens digit: 1\u20139 gives 9 choices.", "Units must be even: 0,2,4,6,8 gives 5.", "9 \u00d7 5 = 45."], ans: "45" }, t: ["Mixing the product and sum rules.", "Counting the same number in two cases.", "Forgetting the tens digit cannot be 0."] },
+      "Pigeonhole": { s: "More items than boxes guarantees that some box holds at least two.", p: [["The principle", "If n items go into m boxes and n > m, some box holds \u2265 2 items."], ["General form", "Some box holds at least \u2308n/m\u2309 items."], ["The real skill", "Choosing what the \u2018boxes\u2019 should be."]], f: ["n items, m boxes, n > m \u21d2 a box has \u2265 2", "Some box has \u2265 \u2308n/m\u2309 items", "Worst case + 1 forces a guarantee"], e: { q: "In a group of 13 people, why must two share a birth month?", steps: ["The boxes are the 12 months.", "There are 13 people \u2014 more people than months.", "So two must fall in the same month."], ans: "Two share a month" }, t: ["Choosing the wrong \u2018boxes\u2019.", "An off-by-one slip in the worst-case count.", "Reading \u2018at least two\u2019 as \u2018exactly two\u2019."] },
+      "Patterns": { s: "Spot the rule that connects each term to the next \u2014 differences first, then ratios.", p: [["Differences", "Look at the gaps; a constant gap means arithmetic."], ["Ratios", "A constant multiplier means geometric."], ["Known shapes", "Squares, triangular numbers and Fibonacci turn up constantly."]], f: ["Constant difference \u21d2 arithmetic", "Constant ratio \u21d2 geometric", "Fibonacci: each term = sum of the previous two"], e: { q: "What comes next: 2, 6, 12, 20, 30, \u2026?", steps: ["Differences are 4, 6, 8, 10 \u2014 rising by 2.", "The next difference is 12.", "30 + 12 = 42."], ans: "42" }, t: ["Stopping at first differences when the second differences hold the key.", "Calling a pattern arithmetic too soon.", "Overlooking a multiplying pattern."] },
+      "Working Backwards": { s: "When the end result is known, start there and undo each step in reverse.", p: [["Reverse the operations", "Undo with inverse operations, in the opposite order."], ["Best when the end is given", "This shines when the final value is the thing you\u2019re told."], ["Verify forwards", "Run your answer forwards to confirm it."]], f: ["Undo + with \u2212, \u00d7 with \u00f7", "Reverse the order of the steps", "Always check by going forwards"], e: { q: "A number is halved, then 4 is added, giving 11. Find it.", steps: ["Undo the +4: 11 \u2212 4 = 7.", "Undo the halving: 7 \u00d7 2.", "= 14."], ans: "14" }, t: ["Undoing the steps in the wrong order.", "Repeating an operation instead of inverting it.", "Skipping the forward check."] },
+      "Logic": { s: "Chain the statements carefully and conclude only what must be true.", p: [["Transitivity", "If A \u21d2 B and B \u21d2 C, then A \u21d2 C."], ["All vs some", "\u2018All\u2019 is a strong claim; \u2018some\u2019 is far weaker."], ["Counterexample", "A single counterexample destroys an \u2018all\u2019 statement."]], f: ["A\u21d2B, B\u21d2C \u21d2 A\u21d2C", "\u2018Not all are\u2019 = \u2018at least one isn\u2019t\u2019", "Conclude only what is forced"], e: { q: "All cats are mammals; all mammals are animals. What follows?", steps: ["Every cat is a mammal.", "Every mammal is an animal.", "So every cat is an animal."], ans: "All cats are animals" }, t: ["Reversing an implication (A\u21d2B doesn\u2019t give B\u21d2A).", "Treating \u2018some\u2019 as if it meant \u2018all\u2019.", "Concluding more than the statements support."] },
+    };
+
+    const pdfMap = {};
+    const LETTERS = ["A", "B", "C", "D", "E", "F"];
+    const state = {
+    exam: null,
+    lvl: null,
+    ch: "All",
+    tp: "All",
+    index: 0,
+    tab: "T",
+    list: [],
+    picked: null,
+    revealed: false,
+    hint: 0,
+    exStep: 0,
+    done: {}
+};
+    const $ = id => document.getElementById(id);
+    const uniq = a => [...new Set(a)];
+    const ALL_LEVELS = ["L1", "L2", "L3"];
+
+    // API functions to fetch data from Flask backend
+    const API_BASE = "/api";
+
+    async function exams() {
+      try { const r = await fetch(API_BASE + "/exams"); const data = r.ok ? await r.json() : []; console.log("Exams loaded:", data); return data } catch (e) { console.error("Failed to load exams:", e); return [] }
+    }
+
+    async function lvlsFor(e) {
+      try { const r = await fetch(API_BASE + "/levels?exam=" + encodeURIComponent(e)); const data = r.ok ? await r.json() : []; console.log("Levels for " + e + ":", data); return data } catch (e) { console.error("Failed to load levels:", e); return [] }
+    }
+
+    async function chsFor(e, l) {
+      try { const r = await fetch(API_BASE + "/chapters?exam=" + encodeURIComponent(e) + "&difficulty=" + encodeURIComponent(l)); const data = r.ok ? await r.json() : []; console.log("Chapters:", data); return data } catch (e) { console.error("Failed to load chapters:", e); return [] }
+    }
+
+    async function tpsFor(e, l, c) {
+      try { const r = await fetch(API_BASE + "/topics?exam=" + encodeURIComponent(e) + "&difficulty=" + encodeURIComponent(l) + "&chapter=" + encodeURIComponent(c)); const data = r.ok ? await r.json() : []; console.log("Topics:", data); return data } catch (e) { console.error("Failed to load topics:", e); return [] }
+    }
+
+    async function loadQuestions(e, l, c, t) {
+      try {
+        let url = API_BASE + "/questions?exam=" + encodeURIComponent(e) + "&difficulty=" + encodeURIComponent(l);
+        if (c && c !== "All") url += "&chapter=" + encodeURIComponent(c);
+        if (t && t !== "All") url += "&topic=" + encodeURIComponent(t);
+        console.log("Loading questions from:", url);
+        const r = await fetch(url);
+        const data = r.ok ? await r.json() : [];
+        console.log("Questions loaded:", data.length, "items");
+        return data;
+      } catch (e) { console.error("Failed to load questions:", e); return [] }
+    }
+    const fillSelect = (el, items, val, includeAll = false) => { const opts = includeAll ? ["All", ...items] : items; el.innerHTML = opts.map(i => `<option${i === val ? " selected" : ""}>${i}</option>`).join(""); };
+    async function filterList() { console.log("filterList() called with:", {exam: state.exam, difficulty: state.lvl, chapter: state.ch, topic: state.tp}); state.list = await loadQuestions(state.exam, state.lvl, state.ch, state.tp); console.log("State list updated:", state.list.length, "questions"); state.list.forEach(q => console.log(`  - Q${q.id}: ${q.lvl}`)); }
+    function qKey(i) { return `${state.exam}|${state.lvl}|${state.ch}|${state.tp}|${i}`; }
+    function resetQ() { state.picked = null; state.revealed = false; state.hint = 0; }
+    async function refreshLvls() {
+    const available = await lvlsFor(state.exam);
+    const pills = $("lvlPills");
+
+    pills.innerHTML = "";
+
+    if (!state.lvl || !available.includes(state.lvl)) {
+        state.lvl = available[0];
+    }
+
+    ALL_LEVELS.forEach((lvl) => {
+        const b = document.createElement("button");
+        const hasData = available.includes(lvl);
+
+        b.textContent = lvl;
+        b.dataset.lvl = lvl;
+        b.disabled = !hasData;
+        b.title = hasData ? "" : "No questions yet for this level";
+
+        if (lvl === state.lvl) {
+            b.classList.add("active");
+        }
+
+        b.onclick = () => {
+            if (b.disabled) return;
+
+            pills.querySelectorAll("button")
+                .forEach(btn => btn.classList.remove("active"));
+
+            b.classList.add("active");
+
+            state.lvl = lvl;
+            cascade(1);
+        };
+
+        pills.appendChild(b);
+    });
+}
+    async function cascade(level) {
+      if (level <= 0) { const ls = await lvlsFor(state.exam); if (ls.length && !ls.includes(state.lvl)) state.lvl = ls[0]; }
+      await refreshLvls();
+      const chs = await chsFor(state.exam, state.lvl);
+      if (chs.length && state.ch !== "All" && !chs.includes(state.ch)) state.ch = "All";
+      fillSelect($("selChapter"), chs, state.ch, true);
+      const tps = state.ch === "All" ? [] : await tpsFor(state.exam, state.lvl, state.ch);
+      if (tps.length && state.tp !== "All" && !tps.includes(state.tp)) state.tp = "All";
+      fillSelect($("selTopic"), tps, state.tp, true);
+      await filterList(); state.index = 0; state.exStep = 0; resetQ(); render();
+    }
+    function goto(i) { state.index = i; resetQ(); render(); }
+
+    function render() {
+      const q = state.list[state.index];
+      $("tabT").classList.toggle("active", state.tab === "T"); $("tabQ").classList.toggle("active", state.tab === "Q"); $("tabS").classList.toggle("active", state.tab === "S");
+      renderPalette();
+      if (!q) { $("qCounter").textContent = "—"; $("lbody").innerHTML = `<div class="empty"><strong>No questions here yet</strong>Pick another exam, difficulty, chapter or topic to load problems.</div>`; $("prevBtn").disabled = $("nextBtn").disabled = true; return; }
+      $("lvlN").textContent = q.lvl;
+      $("qCounter").textContent = `Q${state.index + 1} of ${state.list.length}`;
+      $("prevBtn").disabled = state.index === 0; $("nextBtn").disabled = state.index === state.list.length - 1;
+      if (state.tab === "T") renderTheory(q); else if (state.tab === "Q") renderQuestion(q); else renderSolution(q);
+    }
+    function sparkSvg() { return `<svg class="hi" viewBox="0 0 24 24"><path d="M3 12 Q10 10 12 3 Q14 10 21 12 Q14 14 12 21 Q10 14 3 12 Z" fill="none" stroke="#1C6FB8" stroke-width="1.6"/></svg>`; }
+    function renderStemContent(stemText) {
+      if (!stemText) return "";
+      if (/^https?:\/\/.*\.(png|jpg|jpeg|gif|webp)$/i.test(stemText)) {
+        return `<img src="${stemText}" style="max-width:100%;height:auto;border-radius:8px;margin:10px 0">`;
+      }
+      if (/<[a-z][\s\S]*>/i.test(stemText)) {
+        return stemText;
+      }
+      return stemText;
+    }
+    function renderQuestion(q) {
+      const opts = q.opts.map((o, i) => {
+        let cls = "opt"; let res = "";
+        if (state.revealed) { cls += " locked"; if (i === q.c) { cls += " correct"; res = "✓"; } else if (i === state.picked) { cls += " wrong"; res = "✕"; } }
+        else if (i === state.picked) { cls += " picked"; }
+        return `<button class="${cls}" data-i="${i}"><span class="key">${LETTERS[i]}</span><span>${o}</span><span class="res">${res}</span></button>`;
+      }).join("");
+      let after = "";
+      if (state.revealed) { after = `<div class="reveal-note">${sparkSvg()} Correct answer is ${LETTERS[q.c]}. Open the Solution tab for the full working →</div>`; }
+      else { after = `<div class="qactions"><button class="btn primary" id="revealBtn">Reveal answer</button>${state.hint < q.sol.length ? `<button class="btn" id="hintBtn">${sparkSvg()} ${state.hint === 0 ? "Need a hint?" : "Next hint"}</button>` : `<button class="btn" disabled>No more hints</button>`}</div>`; }
+      let hints = "";
+      for (let i = 0; i < state.hint && i < q.sol.length && !state.revealed; i++) { hints += `<div class="hint-card">${sparkSvg()}<div><span class="hlabel">Hint ${i + 1}</span><div class="ht">${q.sol[i]}</div></div></div>`; }
+      const stemContent = renderStemContent(q.stem);
+      $("lbody").innerHTML = `
+    <div class="meta"><span class="tag exam">${q.exam}</span><span class="tag lvl">${q.lvl}</span><span class="tag topic">${q.ch} · ${q.tp}</span></div>
+    <div class="stem"><span class="qn">${state.index + 1}</span>${stemContent}</div>
+    <div style="margin-top:20px;padding:16px;background:var(--teal-soft);border-radius:10px;border:1px solid #B5E7E4;color:#067F7B;font-weight:600;font-size:14px">View the Solution tab to see the answer </div>`;
+      if (window.MathJax) MathJax.typesetPromise().catch(e => console.log(e));
+    }
+    function renderSolution(q) {
+      const solutionSteps = q.sol.map(step => renderStemContent(step)).join("<br>");
+      $("lbody").innerHTML = `<div class="ms-intro"><span class="dot"></span> Solution · ${q.ch} → ${q.tp}</div><div style="font-size:15px;line-height:1.6;color:var(--ink);margin:20px 0;padding:16px;background:var(--grey-100);border-radius:10px">${solutionSteps}</div>`;
+      if (window.MathJax) MathJax.typesetPromise().catch(e => console.log(e));
+    }
+    const WARN = '<svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
+    function renderTheory(q) {
+      const t = THEORY[state.tp], key = state.ch + "|" + state.tp;
+      let h = `<div class="meta"><span class="tag exam">${q.exam}</span><span class="tag lvl">${q.lvl}</span><span class="tag topic">${state.ch} · ${state.tp}</span></div>`;
+      if (t) {
+        h += `<div class="tsummary">${t.s}</div>`;
+        h += `<div class="sec"><div class="eyebrow"><span class="bar"></span>Key concepts</div>${t.p.map(p => `<div class="concept"><h4>${p[0]}</h4><p>${p[1]}</p></div>`).join("")}</div>`;
+        h += `<div class="sec"><div class="eyebrow"><span class="bar"></span>Quick reference</div><div class="sheet">${t.f.map(f => `<div class="srow"><span class="fx">✦</span><span>${f}</span></div>`).join("")}</div></div>`;
+        let ex = ""; for (let i = 0; i < state.exStep && i < t.e.steps.length; i++)ex += `<div class="exstep"><span class="n">${i + 1}</span><span class="b">${t.e.steps[i]}</span></div>`;
+        const done = state.exStep >= t.e.steps.length;
+        h += `<div class="sec"><div class="eyebrow"><span class="bar"></span>Worked example</div><div class="ex"><div class="exq">${t.e.q}</div>${ex}${done ? `<div class="exans">Answer: ${t.e.ans}</div>` : `<button class="btn primary" id="exBtn" style="margin-top:8px">${state.exStep === 0 ? "Walk through it" : "Reveal next step"}</button>`}</div></div>`;
+        h += `<div class="sec"><div class="eyebrow"><span class="bar" style="background:var(--wrong)"></span>Common mistakes &amp; strategy</div>${t.t.map(tr => `<div class="trap">${WARN}<p>${tr}</p></div>`).join("")}</div>`;
+        if (t.d) h += `<div class="sec"><div class="eyebrow"><span class="bar" style="background:var(--teal)"></span>Diagram</div><div class="figcard">${t.d}<button class="btn" id="figBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Send to whiteboard</button></div></div>`;
+      } else {
+        h += `<div class="tsummary">Built-in notes for this topic are on the way. Load your teaching PDF below to use it in class.</div>`;
+      }
+      h += `<div class="sec"><div class="eyebrow"><span class="bar" style="background:var(--navy)"></span>Your teaching PDF</div>`;
+      if (pdfMap[key]) {
+        h += `<div class="pdfwrap"><div class="pdfbar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 3v5h5"/><path d="M7 3h8l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg><span class="nm">${pdfMap[key].name}</span><button class="linkbtn" id="pdfRemove">Remove</button></div><iframe class="pdfframe" src="${pdfMap[key].url}" title="Teaching PDF"></iframe></div>`;
+      } else {
+        h += `<div class="pdfzone" id="pdfZone"><div class="big">Drop a PDF here, or click to load</div><div class="sm">Your ${state.tp} notes — shown right here during class</div></div><input type="file" id="pdfInput" accept="application/pdf" style="display:none">`;
+      }
+      h += `</div>`;
+      $("lbody").innerHTML = h;
+      const eb = $("exBtn"); if (eb) eb.onclick = () => { state.exStep++; render(); };
+      const fb = $("figBtn"); if (fb && t && t.d) fb.onclick = () => pushFig(t.d);
+      const fi = $("pdfInput"), dz = $("pdfZone"), rm = $("pdfRemove");
+      if (fi) fi.onchange = e => { const f = e.target.files[0]; if (f) loadPdf(key, f); };
+      if (dz) { dz.onclick = () => fi.click(); dz.ondragover = ev => { ev.preventDefault(); dz.classList.add("over"); }; dz.ondragleave = () => dz.classList.remove("over"); dz.ondrop = ev => { ev.preventDefault(); dz.classList.remove("over"); const f = ev.dataTransfer.files[0]; if (f && f.type === "application/pdf") loadPdf(key, f); }; }
+      if (rm) rm.onclick = () => { URL.revokeObjectURL(pdfMap[key].url); delete pdfMap[key]; render(); };
+    }
+    function loadPdf(key, file) { if (pdfMap[key]) URL.revokeObjectURL(pdfMap[key].url); pdfMap[key] = { url: URL.createObjectURL(file), name: file.name }; render(); }
+    function renderPalette() {
+      const p = $("palette"); if (!state.list.length) { p.innerHTML = ""; return; }
+      p.innerHTML = state.list.map((_, i) => `<button class="pchip${i === state.index ? " active" : ""}${state.done[qKey(i)] ? " done" : ""}" data-i="${i}">${i + 1}</button>`).join("");
+      p.querySelectorAll(".pchip").forEach(c => c.onclick = () => goto(+c.dataset.i));
+    }
+
+    $("selExam").onchange = e => { state.exam = e.target.value; cascade(0); };
+    $("selChapter").onchange = e => { state.ch = e.target.value; cascade(2); };
+    $("selTopic").onchange = e => { state.tp = e.target.value; filterList().then(() => { state.index = 0; state.exStep = 0; resetQ(); render(); }); };
+    document.querySelectorAll("#lvlPills button").forEach(b => b.onclick = () => { if (b.disabled) return; state.lvl = b.dataset.lvl; cascade(1); });
+    $("tabT").onclick = () => { state.tab = "T"; render(); };
+    $("tabQ").onclick = () => { state.tab = "Q"; render(); };
+    $("tabS").onclick = () => { state.tab = "S"; render(); };
+    $("prevBtn").onclick = () => { if (state.index > 0) goto(state.index - 1); };
+    $("nextBtn").onclick = () => { if (state.index < state.list.length - 1) goto(state.index + 1); };
+    document.addEventListener("keydown", e => { if (["INPUT", "SELECT", "TEXTAREA", "BUTTON"].includes(document.activeElement.tagName)) return; if (e.key === "ArrowRight") $("nextBtn").click(); if (e.key === "ArrowLeft") $("prevBtn").click(); });
+
+    // Initialize app with data from API
+    (async () => {
+      const examList = await exams();
+      fillSelect($("selExam"), examList, examList[0]);
+      state.exam = examList[0];
+      await cascade(0);
+    })();
+
+    /* ---------- WHITEBOARD ---------- */
+    const canvas = $("board"), ctx = canvas.getContext("2d"), wrap = $("boardWrap");
+    let drawing = false, tool = "pen", color = "#0F1338", size = 3, last = null, undoStack = [];
+    const COLORS = ["#0F1338", "#FF8A00", "#00B5B0", "#E5484D", "#1C6FB8", "#6B7280"];
+    const sw = $("swatches");
+    COLORS.forEach((c, i) => { const b = document.createElement("button"); b.className = "swatch" + (i === 0 ? " active" : ""); b.style.background = c; b.setAttribute("aria-label", "Pen colour"); b.onclick = () => { color = c; tool = "pen"; setTool(); document.querySelectorAll(".swatch").forEach(s => s.classList.remove("active")); b.classList.add("active"); }; sw.appendChild(b); });
+    function fit() { const snap = canvas.width ? ctx.getImageData(0, 0, canvas.width, canvas.height) : null; const r = wrap.getBoundingClientRect(); canvas.width = r.width; canvas.height = r.height; ctx.lineCap = "round"; ctx.lineJoin = "round"; if (snap) try { ctx.putImageData(snap, 0, 0); } catch (e) { } }
+    new ResizeObserver(fit).observe(wrap); fit();
+    const ppos = e => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    const pushUndo = () => { if (undoStack.length > 30) undoStack.shift(); undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height)); };
+    function pushFig(svg) {
+      if (!svg) return;
+      const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+      const img = new Image();
+      img.onload = () => { pushUndo(); const scale = Math.min(1.4, (canvas.width * 0.42) / img.width); ctx.globalCompositeOperation = "source-over"; ctx.drawImage(img, 30, 30, img.width * scale, img.height * scale); URL.revokeObjectURL(url); $("wbHint").style.opacity = "0"; toast("Figure sent to whiteboard", "✏️"); };
+      img.onerror = () => URL.revokeObjectURL(url);
+      img.src = url;
+    }
+    canvas.addEventListener("pointerdown", e => { drawing = true; pushUndo(); last = ppos(e); canvas.setPointerCapture(e.pointerId); $("wbHint").style.opacity = "0"; });
+    canvas.addEventListener("pointermove", e => { if (!drawing) return; const p = ppos(e); ctx.globalCompositeOperation = tool === "eraser" ? "destination-out" : "source-over"; ctx.strokeStyle = color; ctx.lineWidth = tool === "eraser" ? size * 3 : size; ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke(); last = p; });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(ev => canvas.addEventListener(ev, () => drawing = false));
+    function setTool() { $("penBtn").classList.toggle("active", tool === "pen"); $("eraseBtn").classList.toggle("active", tool === "eraser"); }
+    $("penBtn").onclick = () => { tool = "pen"; setTool(); };
+    $("eraseBtn").onclick = () => { tool = "eraser"; setTool(); };
+    $("gridBtn").onclick = () => { wrap.classList.toggle("grid"); const g = wrap.classList.contains("grid"); $("gridBtn").classList.toggle("active", !g); $("gridBtn").textContent = g ? "Squared" : "Plain"; };
+    $("undoBtn").onclick = () => { if (undoStack.length) ctx.putImageData(undoStack.pop(), 0, 0); };
+    $("clearBtn").onclick = () => { pushUndo(); ctx.clearRect(0, 0, canvas.width, canvas.height); };
+    $("sizeRange").oninput = e => { size = +e.target.value; $("sizeVal").textContent = size + "px"; };
+    $("saveBtn").onclick = () => { const out = document.createElement("canvas"); out.width = canvas.width; out.height = canvas.height; const o = out.getContext("2d"); o.fillStyle = "#fff"; o.fillRect(0, 0, out.width, out.height); if (wrap.classList.contains("grid")) { o.strokeStyle = "#D9E6F5"; o.lineWidth = 1; for (let x = 0; x < out.width; x += 26) { o.beginPath(); o.moveTo(x, 0); o.lineTo(x, out.height); o.stroke(); } for (let y = 0; y < out.height; y += 26) { o.beginPath(); o.moveTo(0, y); o.lineTo(out.width, y); o.stroke(); } } o.drawImage(canvas, 0, 0); const a = document.createElement("a"); a.download = "prepair-whiteboard.png"; a.href = out.toDataURL(); a.click(); };
+    setTool();
+
+    /* ---------- SOUND ---------- */
+    let soundOn = true, actx = null;
+    function AC() { if (!actx) { const C = window.AudioContext || window.webkitAudioContext; actx = new C(); } if (actx.state === "suspended") actx.resume(); return actx; }
+    function chime() { if (!soundOn) return; const a = AC(), t = a.currentTime, notes = [1047, 1319, 1568]; notes.forEach((f, i) => { const o = a.createOscillator(), g = a.createGain(); o.type = "sine"; o.frequency.value = f; o.connect(g); g.connect(a.destination); const s = t + i * 0.07; g.gain.setValueAtTime(0, s); g.gain.linearRampToValueAtTime(0.18, s + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, s + 0.45); o.start(s); o.stop(s + 0.5); }); }
+    function pop() { if (!soundOn) return; const a = AC(), t = a.currentTime, o = a.createOscillator(), g = a.createGain(); o.type = "triangle"; o.frequency.setValueAtTime(500, t); o.frequency.exponentialRampToValueAtTime(900, t + 0.12); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.2, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + 0.2); }
+    function applause() { if (!soundOn) return; const a = AC(), t = a.currentTime, dur = 1.3; const buf = a.createBuffer(1, a.sampleRate * dur, a.sampleRate), d = buf.getChannelData(0); for (let i = 0; i < d.length; i++) { const env = Math.min(1, i / 2000) * Math.pow(1 - i / d.length, 1.3); d[i] = (Math.random() * 2 - 1) * env * (0.6 + 0.4 * Math.sin(i / 180)); } const src = a.createBufferSource(); src.buffer = buf; const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1900; bp.Q.value = 0.8; const g = a.createGain(); g.gain.value = 0.5; src.connect(bp); bp.connect(g); g.connect(a.destination); src.start(t); }
+    $("soundBtn").onclick = () => { soundOn = !soundOn; $("soundBtn").classList.toggle("off", !soundOn); $("soundBtn").title = soundOn ? "Sound on" : "Sound off"; if (soundOn) pop(); };
+
+    /* ---------- CONFETTI (PrepAIR sparkles) ---------- */
+    const fx = $("fx"), fxx = fx.getContext("2d"); let parts = [], raf = null;
+    function fxSize() { fx.width = innerWidth; fx.height = innerHeight; }
+    fxSize(); addEventListener("resize", fxSize);
+    const CONF = ["#FF8A00", "#00B5B0", "#0F1338", "#FFB85C", "#5AD1CD", "#FFC23C"];
+    function sparkle(c, x, y, r) { const k = r * 0.32; c.beginPath(); c.moveTo(x, y - r); c.quadraticCurveTo(x + k, y - k, x + r, y); c.quadraticCurveTo(x + k, y + k, x, y + r); c.quadraticCurveTo(x - k, y + k, x - r, y); c.quadraticCurveTo(x - k, y - k, x, y - r); c.closePath(); c.fill(); }
+    function burst(x, y, n, shape) { for (let i = 0; i < n; i++) { const ang = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.05, sp = 6 + Math.random() * 11; parts.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, g: 0.22 + Math.random() * 0.12, s: 5 + Math.random() * 6, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, col: CONF[i % CONF.length], life: 0, max: 70 + Math.random() * 40, shape: shape || "rect" }); } if (!raf) raf = requestAnimationFrame(tick); }
+    function tick() { fxx.clearRect(0, 0, fx.width, fx.height); parts = parts.filter(p => p.life < p.max); parts.forEach(p => { p.life++; p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; const al = Math.max(0, 1 - p.life / p.max); fxx.save(); fxx.globalAlpha = al; fxx.translate(p.x, p.y); fxx.rotate(p.rot); fxx.fillStyle = p.col; if (p.shape === "spark") sparkle(fxx, 0, 0, p.s); else fxx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.62); fxx.restore(); }); if (parts.length) raf = requestAnimationFrame(tick); else { raf = null; fxx.clearRect(0, 0, fx.width, fx.height); } }
+
+    /* ---------- XP / STREAK / LEVEL / TOAST / OWL ---------- */
+    let xp = 0, streak = 0;
+    function setLvl() { $("lvlN").textContent = Math.floor(xp / 100) + 1; }
+    function addXP(n) { xp += n; $("xpN").textContent = xp; setLvl(); const s = $("xpStat"); s.classList.remove("pulse"); void s.offsetWidth; s.classList.add("pulse"); }
+    function bumpStreak() { streak++; $("streakN").textContent = streak; const s = $("streakStat"); s.classList.remove("pulse"); void s.offsetWidth; s.classList.add("pulse"); }
+    function toast(msg, emoji) { const w = $("toastWrap"); if (!w) return; const el = document.createElement("div"); el.className = "toast"; el.innerHTML = `<span>${emoji || "✦"}</span> ${msg}`; w.appendChild(el); setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 350); }, 2400); }
+
+    const REACTIONS = [
+      { em: "🎉", lb: "Celebrate", run: () => { const r = org(); burst(r.x, r.y, 90, "spark"); chime(); toast("You nailed it!", "🎉"); addXP(10); } },
+      { em: "👏", lb: "Applause", run: () => { const r = org(); burst(r.x, r.y, 45, "rect"); applause(); toast("Give it up!", "👏"); addXP(5); } },
+      { em: "⭐", lb: "Star", run: () => { const r = org(); burst(r.x, r.y, 55, "spark"); pop(); addXP(5); } },
+      { em: "🏆", lb: "Trophy", run: () => { const r = org(); burst(r.x, r.y, 140, "spark"); applause(); chime(); toast("Top of the class!", "🏆"); addXP(25); } },
+      { em: "💯", lb: "Full marks", run: () => { const r = org(); burst(r.x, r.y, 70, "rect"); chime(); toast("Full marks!", "💯"); addXP(20); } },
+      { em: "✅", lb: "Correct", run: () => { const r = org(); burst(r.x, r.y, 40, "spark"); pop(); toast("Correct — well done!", "✅"); addXP(10); bumpStreak(); } },
+    ];
+    const dock = $("dock");
+    function org() { const d = dock ? dock.getBoundingClientRect() : { left: innerWidth / 2, width: 0, top: innerHeight - 40 }; return { x: d.left + d.width / 2, y: d.top }; }
+    if (dock) REACTIONS.forEach(rx => { const b = document.createElement("button"); b.className = "react"; b.setAttribute("aria-label", rx.lb); b.title = rx.lb; b.innerHTML = `<span class="em">${rx.em}</span><span class="lb">${rx.lb}</span>`; b.onclick = () => rx.run(); dock.appendChild(b); });
+
+    /* ---------- LOGOUT ---------- */
+    async function logout() {
+      try {
+        const res = await fetch("/logout", { method: "POST" });
+        if (res.ok) {
+          toast("Logged out successfully", "👋");
+          setTimeout(() => { window.location.href = "/login"; }, 800);
+        } else {
+          toast("Logout failed", "⚠️");
+        }
+      } catch (e) {
+        console.error("Logout error:", e);
+        toast("Logout error", "⚠️");
+      }
+    }
+    $("logoutBtn").onclick = logout;
+
+    setLvl();
+  </script>
+</body>
+
+</html>
