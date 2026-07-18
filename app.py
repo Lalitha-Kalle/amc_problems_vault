@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 
 import sqlite3
 import os
-import re
 
 
 load_dotenv()
@@ -56,15 +55,7 @@ def get_difficulty_level(question_num):
 
 
 # ── Studio UI helpers ──────────────────────────────────────────────
-EXAM_RE = re.compile(r'^(\d{4}) AMC 10([AB])$')
 LEVEL_RANGES = {'L1': (1, 10), 'L2': (11, 20), 'L3': (21, 25)}
-
-
-def parse_exam(exam):
-    m = EXAM_RE.match(exam or '')
-    if not m:
-        return None, None
-    return int(m.group(1)), m.group(2)
 
 
 # ── Auth Routes ────────────────────────────────────────────────────
@@ -257,30 +248,14 @@ def get_problem(year, version, question_num):
 
 
 # ── Studio UI API (updated_ui.html) ───────────────────────────────
-@app.route('/api/exams')
-@login_required
-def api_exams():
-    conn = get_db()
-    try:
-        rows = conn.execute(
-            'SELECT DISTINCT year, version FROM problem_content ORDER BY year DESC, version'
-        ).fetchall()
-    finally:
-        conn.close()
-    return jsonify([f"{r['year']} AMC 10{r['version']}" for r in rows])
-
-
+# Filters pool across every exam (year/version) in the database —
+# scoping is by difficulty, chapter and topic only.
 @app.route('/api/levels')
 @login_required
 def api_levels():
-    year, version = parse_exam(request.args.get('exam', ''))
-    if not year:
-        return jsonify([])
     conn = get_db()
     try:
-        rows = conn.execute(
-            'SELECT DISTINCT question_num FROM problem_content WHERE year = ? AND version = ?',
-            (year, version)).fetchall()
+        rows = conn.execute('SELECT DISTINCT question_num FROM problem_content').fetchall()
     finally:
         conn.close()
     nums = {r['question_num'] for r in rows}
@@ -291,21 +266,18 @@ def api_levels():
 @app.route('/api/chapters')
 @login_required
 def api_chapters():
-    year, version = parse_exam(request.args.get('exam', ''))
-    if not year:
-        return jsonify([])
     lo_hi = LEVEL_RANGES.get(request.args.get('difficulty', ''))
 
-    conditions, params = ['year = ?', 'version = ?'], [year, version]
+    conditions, params = [], []
     if lo_hi:
         conditions.append('question_num BETWEEN ? AND ?')
         params += list(lo_hi)
+    where = ('WHERE ' + ' AND '.join(conditions)) if conditions else ''
 
     conn = get_db()
     try:
         rows = conn.execute(
-            f"SELECT DISTINCT level_1 FROM problems WHERE {' AND '.join(conditions)} ORDER BY level_1",
-            params).fetchall()
+            f'SELECT DISTINCT level_1 FROM problems {where} ORDER BY level_1', params).fetchall()
     finally:
         conn.close()
     return jsonify([r['level_1'] for r in rows])
@@ -314,25 +286,22 @@ def api_chapters():
 @app.route('/api/topics')
 @login_required
 def api_topics():
-    year, version = parse_exam(request.args.get('exam', ''))
-    if not year:
-        return jsonify([])
     lo_hi = LEVEL_RANGES.get(request.args.get('difficulty', ''))
     chapter = request.args.get('chapter', '')
 
-    conditions, params = ['year = ?', 'version = ?'], [year, version]
+    conditions, params = [], []
     if lo_hi:
         conditions.append('question_num BETWEEN ? AND ?')
         params += list(lo_hi)
     if chapter and chapter != 'All':
         conditions.append('level_1 = ?')
         params.append(chapter)
+    where = ('WHERE ' + ' AND '.join(conditions)) if conditions else ''
 
     conn = get_db()
     try:
         rows = conn.execute(
-            f"SELECT DISTINCT level_2 FROM problems WHERE {' AND '.join(conditions)} ORDER BY level_2",
-            params).fetchall()
+            f'SELECT DISTINCT level_2 FROM problems {where} ORDER BY level_2', params).fetchall()
     finally:
         conn.close()
     return jsonify([r['level_2'] for r in rows])
@@ -341,14 +310,11 @@ def api_topics():
 @app.route('/api/questions')
 @login_required
 def api_questions():
-    year, version = parse_exam(request.args.get('exam', ''))
-    if not year:
-        return jsonify([])
     lo_hi = LEVEL_RANGES.get(request.args.get('difficulty', ''))
     chapter = request.args.get('chapter', '')
     topic = request.args.get('topic', '')
 
-    conditions, params = ['c.year = ?', 'c.version = ?'], [year, version]
+    conditions, params = [], []
     if lo_hi:
         conditions.append('c.question_num BETWEEN ? AND ?')
         params += list(lo_hi)
@@ -365,30 +331,31 @@ def api_questions():
         conditions.append(f"EXISTS (SELECT 1 FROM problems p WHERE {' AND '.join(exists_conditions)})")
         params += exists_params
 
+    where = ('WHERE ' + ' AND '.join(conditions)) if conditions else ''
+
     conn = get_db()
     try:
         rows = conn.execute(f'''
-            SELECT c.question_num, c.problem, c.solution
+            SELECT c.year, c.version, c.question_num, c.problem, c.solution
             FROM problem_content c
-            WHERE {' AND '.join(conditions)}
-            ORDER BY c.question_num
+            {where}
+            ORDER BY c.year DESC, c.version, c.question_num
         ''', params).fetchall()
 
         topic_rows = conn.execute(
-            'SELECT question_num, level_1, level_2 FROM problems WHERE year = ? AND version = ?',
-            (year, version)).fetchall()
+            'SELECT year, version, question_num, level_1, level_2 FROM problems').fetchall()
     finally:
         conn.close()
 
     topics_by_q = {}
     for t in topic_rows:
-        topics_by_q.setdefault(t['question_num'], []).append((t['level_1'], t['level_2']))
+        key = (t['year'], t['version'], t['question_num'])
+        topics_by_q.setdefault(key, []).append((t['level_1'], t['level_2']))
 
-    exam_label = f"{year} AMC 10{version}"
     results = []
     for r in rows:
-        qn = r['question_num']
-        tags = topics_by_q.get(qn, [])
+        year, version, qn = r['year'], r['version'], r['question_num']
+        tags = topics_by_q.get((year, version, qn), [])
         match = next((t for t in tags
                       if (not chapter or chapter == 'All' or t[0] == chapter)
                       and (not topic or topic == 'All' or t[1] == topic)), None)
@@ -399,7 +366,7 @@ def api_questions():
         lvl = next((l for l, (lo, hi) in LEVEL_RANGES.items() if lo <= qn <= hi), '')
         results.append({
             'id': f"{year}{version}{qn}",
-            'exam': exam_label,
+            'exam': f"{year} AMC 10{version}",
             'lvl': lvl,
             'ch': ch,
             'tp': tp,

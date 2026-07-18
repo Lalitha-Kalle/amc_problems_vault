@@ -195,13 +195,6 @@
       pointer-events: none
     }
 
-    .field.exam select {
-      border-color: #FFD39A;
-      background: var(--orange-soft);
-      color: #B35F00;
-      font-weight: 600
-    }
-
     .lvl-pills{
     display:flex;
     align-items:center;
@@ -1550,9 +1543,6 @@
       </div>
 
       <div class="filters">
-        <div class="field exam"><label for="selExam">Exam</label>
-          <div class="select-wrap"><select id="selExam"></select></div>
-        </div>
         <div class="field"><label>Difficulty</label>
           <div class="lvl-pills" id="lvlPills" role="group" aria-label="Difficulty level"></div>
         </div>
@@ -1687,7 +1677,6 @@
     const pdfMap = {};
     const LETTERS = ["A", "B", "C", "D", "E", "F"];
     const state = {
-    exam: null,
     lvl: null,
     ch: "All",
     tp: "All",
@@ -1707,25 +1696,21 @@
     // API functions to fetch data from Flask backend
     const API_BASE = "/api";
 
-    async function exams() {
-      try { const r = await fetch(API_BASE + "/exams"); const data = r.ok ? await r.json() : []; console.log("Exams loaded:", data); return data } catch (e) { console.error("Failed to load exams:", e); return [] }
+    async function lvlsFor() {
+      try { const r = await fetch(API_BASE + "/levels"); const data = r.ok ? await r.json() : []; console.log("Levels:", data); return data } catch (e) { console.error("Failed to load levels:", e); return [] }
     }
 
-    async function lvlsFor(e) {
-      try { const r = await fetch(API_BASE + "/levels?exam=" + encodeURIComponent(e)); const data = r.ok ? await r.json() : []; console.log("Levels for " + e + ":", data); return data } catch (e) { console.error("Failed to load levels:", e); return [] }
+    async function chsFor(l) {
+      try { const r = await fetch(API_BASE + "/chapters?difficulty=" + encodeURIComponent(l)); const data = r.ok ? await r.json() : []; console.log("Chapters:", data); return data } catch (e) { console.error("Failed to load chapters:", e); return [] }
     }
 
-    async function chsFor(e, l) {
-      try { const r = await fetch(API_BASE + "/chapters?exam=" + encodeURIComponent(e) + "&difficulty=" + encodeURIComponent(l)); const data = r.ok ? await r.json() : []; console.log("Chapters:", data); return data } catch (e) { console.error("Failed to load chapters:", e); return [] }
+    async function tpsFor(l, c) {
+      try { const r = await fetch(API_BASE + "/topics?difficulty=" + encodeURIComponent(l) + "&chapter=" + encodeURIComponent(c)); const data = r.ok ? await r.json() : []; console.log("Topics:", data); return data } catch (e) { console.error("Failed to load topics:", e); return [] }
     }
 
-    async function tpsFor(e, l, c) {
-      try { const r = await fetch(API_BASE + "/topics?exam=" + encodeURIComponent(e) + "&difficulty=" + encodeURIComponent(l) + "&chapter=" + encodeURIComponent(c)); const data = r.ok ? await r.json() : []; console.log("Topics:", data); return data } catch (e) { console.error("Failed to load topics:", e); return [] }
-    }
-
-    async function loadQuestions(e, l, c, t) {
+    async function loadQuestions(l, c, t) {
       try {
-        let url = API_BASE + "/questions?exam=" + encodeURIComponent(e) + "&difficulty=" + encodeURIComponent(l);
+        let url = API_BASE + "/questions?difficulty=" + encodeURIComponent(l);
         if (c && c !== "All") url += "&chapter=" + encodeURIComponent(c);
         if (t && t !== "All") url += "&topic=" + encodeURIComponent(t);
         console.log("Loading questions from:", url);
@@ -1736,11 +1721,11 @@
       } catch (e) { console.error("Failed to load questions:", e); return [] }
     }
     const fillSelect = (el, items, val, includeAll = false) => { const opts = includeAll ? ["All", ...items] : items; el.innerHTML = opts.map(i => `<option${i === val ? " selected" : ""}>${i}</option>`).join(""); };
-    async function filterList() { console.log("filterList() called with:", {exam: state.exam, difficulty: state.lvl, chapter: state.ch, topic: state.tp}); state.list = await loadQuestions(state.exam, state.lvl, state.ch, state.tp); console.log("State list updated:", state.list.length, "questions"); state.list.forEach(q => console.log(`  - Q${q.id}: ${q.lvl}`)); }
-    function qKey(i) { return `${state.exam}|${state.lvl}|${state.ch}|${state.tp}|${i}`; }
+    async function filterList() { console.log("filterList() called with:", {difficulty: state.lvl, chapter: state.ch, topic: state.tp}); state.list = await loadQuestions(state.lvl, state.ch, state.tp); console.log("State list updated:", state.list.length, "questions"); state.list.forEach(q => console.log(`  - Q${q.id}: ${q.lvl}`)); }
+    function qKey(i) { return `${state.lvl}|${state.ch}|${state.tp}|${i}`; }
     function resetQ() { state.picked = null; state.revealed = false; state.hint = 0; }
     async function refreshLvls() {
-    const available = await lvlsFor(state.exam);
+    const available = await lvlsFor();
     const pills = $("lvlPills");
 
     pills.innerHTML = "";
@@ -1778,12 +1763,12 @@
     });
 }
     async function cascade(level) {
-      if (level <= 0) { const ls = await lvlsFor(state.exam); if (ls.length && !ls.includes(state.lvl)) state.lvl = ls[0]; }
+      if (level <= 0) { const ls = await lvlsFor(); if (ls.length && !ls.includes(state.lvl)) state.lvl = ls[0]; }
       await refreshLvls();
-      const chs = await chsFor(state.exam, state.lvl);
+      const chs = await chsFor(state.lvl);
       if (chs.length && state.ch !== "All" && !chs.includes(state.ch)) state.ch = "All";
       fillSelect($("selChapter"), chs, state.ch, true);
-      const tps = state.ch === "All" ? [] : await tpsFor(state.exam, state.lvl, state.ch);
+      const tps = state.ch === "All" ? [] : await tpsFor(state.lvl, state.ch);
       if (tps.length && state.tp !== "All" && !tps.includes(state.tp)) state.tp = "All";
       fillSelect($("selTopic"), tps, state.tp, true);
       await filterList(); state.index = 0; state.exStep = 0; resetQ(); render();
@@ -1794,7 +1779,7 @@
       const q = state.list[state.index];
       $("tabT").classList.toggle("active", state.tab === "T"); $("tabQ").classList.toggle("active", state.tab === "Q"); $("tabS").classList.toggle("active", state.tab === "S");
       renderPalette();
-      if (!q) { $("qCounter").textContent = "—"; $("lbody").innerHTML = `<div class="empty"><strong>No questions here yet</strong>Pick another exam, difficulty, chapter or topic to load problems.</div>`; $("prevBtn").disabled = $("nextBtn").disabled = true; return; }
+      if (!q) { $("qCounter").textContent = "—"; $("lbody").innerHTML = `<div class="empty"><strong>No questions here yet</strong>Pick another difficulty, chapter or topic to load problems.</div>`; $("prevBtn").disabled = $("nextBtn").disabled = true; return; }
       $("lvlN").textContent = q.lvl;
       $("qCounter").textContent = `Q${state.index + 1} of ${state.list.length}`;
       $("prevBtn").disabled = state.index === 0; $("nextBtn").disabled = state.index === state.list.length - 1;
@@ -1873,7 +1858,6 @@
       p.querySelectorAll(".pchip").forEach(c => c.onclick = () => goto(+c.dataset.i));
     }
 
-    $("selExam").onchange = e => { state.exam = e.target.value; cascade(0); };
     $("selChapter").onchange = e => { state.ch = e.target.value; cascade(2); };
     $("selTopic").onchange = e => { state.tp = e.target.value; filterList().then(() => { state.index = 0; state.exStep = 0; resetQ(); render(); }); };
     document.querySelectorAll("#lvlPills button").forEach(b => b.onclick = () => { if (b.disabled) return; state.lvl = b.dataset.lvl; cascade(1); });
@@ -1886,9 +1870,6 @@
 
     // Initialize app with data from API
     (async () => {
-      const examList = await exams();
-      fillSelect($("selExam"), examList, examList[0]);
-      state.exam = examList[0];
       await cascade(0);
     })();
 
