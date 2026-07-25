@@ -1538,7 +1538,7 @@
         </svg>
         <div>
           <div class="wm"><span class="p">Prep</span><span class="a">AIR</span></div>
-          <div class="brand-sub">MATH OLYMPIAD · MIDDLE SCHOOL</div>
+          <div class="brand-sub">MATH OLYMPIAD · HIGH SCHOOL</div>
         </div>
       </div>
 
@@ -1811,8 +1811,7 @@
       const stemContent = renderStemContent(q.stem);
       $("lbody").innerHTML = `
     <div class="meta"><span class="tag exam">${q.exam}</span><span class="tag lvl">${q.lvl}</span><span class="tag topic">${q.ch} · ${q.tp}</span></div>
-    <div class="stem"><span class="qn">${state.index + 1}</span>${stemContent}</div>
-    <div style="margin-top:20px;padding:16px;background:var(--teal-soft);border-radius:10px;border:1px solid #B5E7E4;color:#067F7B;font-weight:600;font-size:14px">View the Solution tab to see the answer </div>`;
+    <div class="stem"><span class="qn">${state.index + 1}</span>${stemContent}</div>`;
       if (window.MathJax) MathJax.typesetPromise().catch(e => console.log(e));
     }
     function renderSolution(q) {
