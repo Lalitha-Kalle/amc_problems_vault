@@ -57,6 +57,42 @@ def get_difficulty_level(question_num):
 # ── Studio UI helpers ──────────────────────────────────────────────
 LEVEL_RANGES = {'L1': (1, 10), 'L2': (11, 20), 'L3': (21, 25)}
 
+# Chapter/topic ordering mirrors the taxonomy spreadsheet
+# (https://docs.google.com/spreadsheets/d/1TsoFbFXpxxVrUO3rXg6qROeDp2k7RDj-dZbXqK9yS9Q)
+# instead of alphabetical order.
+CHAPTER_ORDER = ['Number Theory', 'Algebra', 'Geometry', 'Counting & Probability']
+
+TOPIC_ORDER = {
+    'Number Theory': [
+        'Place Values', 'Parity', 'Divisibility', 'Multiples and Divisors',
+        'Primes and Composites', 'Decimal Representation',
+        'Modular Arithmetic and Congruences', 'Bases',
+    ],
+    'Algebra': [
+        'Basic Algebra', 'Fractions', 'Equations and Expressions', 'Statistics',
+        'Algebraic Application', 'Exponents and Radicals', 'Inequalities',
+        'Polynomials', 'Functions', 'Special Functions', 'Sequences and Series',
+        'Coordinate Geometry', 'Conic Sections', 'Logarithms', 'Logic',
+        'Calculus', 'Complex Numbers',
+    ],
+    'Geometry': [
+        'Angles', 'Angle Geometry', 'Triangle Geometry', 'Quadrilateral Geometry',
+        'Polygon Geometry', 'Circle Geometry', 'Transformations',
+        'Coordinate Geometry', 'Dimensional Proportionality ', 'Solid Geometry',
+        'Trigonometry',
+    ],
+    'Counting & Probability': [
+        'Counting', 'Probability', 'Combinatorics Miscellaneous',
+        'Sets and Partitions', 'Recursive Relations', 'Binomial Coefficients',
+        'Graph Theory',
+    ],
+}
+
+
+def _sort_by_order(values, order):
+    index = {name: i for i, name in enumerate(order)}
+    return sorted(values, key=lambda v: (index.get(v, len(order)), v))
+
 
 # ── Auth Routes ────────────────────────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
@@ -277,10 +313,10 @@ def api_chapters():
     conn = get_db()
     try:
         rows = conn.execute(
-            f'SELECT DISTINCT level_1 FROM problems {where} ORDER BY level_1', params).fetchall()
+            f'SELECT DISTINCT level_1 FROM problems {where}', params).fetchall()
     finally:
         conn.close()
-    return jsonify([r['level_1'] for r in rows])
+    return jsonify(_sort_by_order([r['level_1'] for r in rows], CHAPTER_ORDER))
 
 
 @app.route('/api/topics')
@@ -301,10 +337,14 @@ def api_topics():
     conn = get_db()
     try:
         rows = conn.execute(
-            f'SELECT DISTINCT level_2 FROM problems {where} ORDER BY level_2', params).fetchall()
+            f'SELECT DISTINCT level_2 FROM problems {where}', params).fetchall()
     finally:
         conn.close()
-    return jsonify([r['level_2'] for r in rows])
+    if chapter and chapter != 'All':
+        topic_order = TOPIC_ORDER.get(chapter, [])
+    else:
+        topic_order = [t for ch in CHAPTER_ORDER for t in TOPIC_ORDER.get(ch, [])]
+    return jsonify(_sort_by_order([r['level_2'] for r in rows], topic_order))
 
 
 @app.route('/api/questions')
